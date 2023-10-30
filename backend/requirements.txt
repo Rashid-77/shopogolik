@@ -1,3 +1,4 @@
+
 fastapi
 uvicorn[standard]
 passlib[bcrypt]
@@ -9,6 +10,7 @@ pydantic[email]
 pydantic-extra-types
 phonenumbers
 tenacity
+alembic
 sqlalchemy>=2.0
 # dev
 pytest

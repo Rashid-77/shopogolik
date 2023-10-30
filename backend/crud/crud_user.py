@@ -16,21 +16,12 @@ logger = get_logger(__name__)
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
-    def get(self, db: Session, id: Any) -> Optional[ModelType]:
-        if not isinstance(id, int):
-            try:
-                id = int(id)
-            except ValueError:
-                raise HTTPException(status_code=400, detail="Incorrect value")
-        q = db.execute(text('SELECT * FROM "user" WHERE id=:id;'), {"id": id})
-        return q.fetchone()
-    
-    def get(self, db: Session, id: Any) -> Optional[ModelType]:
-        return db.query(self.model).filter(self.model.id == id).first()
-    
     def get_by_username(self, db: Session, *, username: str) -> Optional[User]:
         return db.query(User).filter(User.username == username).first()
 
+    def get_by_email(self, db: Session, *, email: str) -> Optional[User]:
+        return db.query(User).filter(User.email == email).first()
+    
     def create(self, db: Session, *, obj_in: UserCreate) -> User:
         db_obj = User(
             username=obj_in.username,
@@ -40,7 +31,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             phone = obj_in.phone,
             hashed_password=get_password_hash("pwd"),
             disabled=False,
-            is_superuser=False,
+            is_superuser=obj_in.is_superuser,
         )
         db.add(db_obj)
         db.commit()

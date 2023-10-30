@@ -17,9 +17,8 @@ services:
       - db
 
   db:
-    container_name: shopgol_db 
-    build:
-      dockerfile: Dockerfile
+    container_name: shopgol_db
+    image: postgres:15.0-alpine
     ports:
       - '5432:5432'
     restart: unless-stopped

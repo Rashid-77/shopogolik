@@ -7,17 +7,18 @@ from pydantic_extra_types.phone_numbers import PhoneNumber
 # Shared properties
 class UserBase(BaseModel):
     username: Optional[str] = Field(None, max_legth=256)
-    first_name: str
-    last_name: str
-    email: str#NameEmail
-    phone: str#PhoneNumber
+    first_name: Optional[str] = Field(None)
+    last_name: Optional[str] = Field(None)
+    email: str #NameEmail
+    phone: Optional[str] = Field(None) #PhoneNumber
+    
 
 
 # Properties to receive via API on creation
 class UserCreate(UserBase):
     username: str
+    is_superuser: bool
     # password: str
-    # is_superuser: bool = False
     pass
 
 
@@ -41,3 +42,4 @@ class User(UserInDBBase):
 # Additional properties stored in DB
 class UserInDB(UserInDBBase):
     hashed_password: str
+    is_superuser: bool
