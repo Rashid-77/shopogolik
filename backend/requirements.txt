@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+passlib[bcrypt]
+python-jose
+python-multipart
+psycopg2-binary
+pydantic-settings
+pydantic[email]
+pydantic-extra-types
+phonenumbers
+tenacity
+sqlalchemy>=2.0
+# dev
+pytest
