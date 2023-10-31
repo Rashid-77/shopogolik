@@ -4,7 +4,6 @@ import schemas  # noqa: F401
 from sqlalchemy.orm import Session
 
 from backend import crud
-from backend.utils.config import get_settings
 from . import base  # noqa: F401
 
 # make sure all SQL Alchemy models are imported (app.db.base) before initializing DB
