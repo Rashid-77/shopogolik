@@ -23,7 +23,7 @@ spec:
         - name: POSTGRES_DB
           value: shopgolik_db
         - name: POSTGRES_HOST
-          value: shopgol_db
+          value: postgres
         - name: POSTGRES_PORT
           value: '5432'
         - name: POSTGRES_USER
@@ -37,10 +37,17 @@ spec:
               key: password
               name: postgres-credentials
         - name: FIRST_SUPERUSER
-          value: 'admin@shopogolik.com'
+          valueFrom:
+            secretKeyRef:
+              key: superuser
+              name: server-credentials
         - name: FIRST_SUPERUSER_PASSWORD
-          value: 'pwd'
-        image: rash77/shopogolik-backend:v1.5
+          valueFrom:
+            secretKeyRef:
+              key: superuser_pwd
+              name: server-credentials
+
+        image: rash77/shopogolik-backend:v1.6
         imagePullPolicy: Always
         name: shopogolik
         resources: {}
