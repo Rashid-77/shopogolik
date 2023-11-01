@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopogolik
+  namespace: app
+  creationTimestamp: null
+  labels:
+    name: shopogolik
+spec:
+  progressDeadlineSeconds: 2147483647
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shopogolik
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: shopogolik
+    spec:
+      containers:
+      - env:
+        - name: POSTGRES_DB
+          value: shopgolik_db
+        - name: POSTGRES_HOST
+          value: shopgol_db
+        - name: POSTGRES_PORT
+          value: '5432'
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              key: user
+              name: postgres-credentials
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: postgres-credentials
+        - name: FIRST_SUPERUSER
+          value: 'admin@shopogolik.com'
+        - name: FIRST_SUPERUSER_PASSWORD
+          value: 'pwd'
+        image: rash77/shopogolik-backend:v1.5
+        imagePullPolicy: Always
+        name: shopogolik
+        resources: {}
+          # limits:
+          #   memory: 2Gi
+          #   cpu: "1"
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
