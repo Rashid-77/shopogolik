@@ -1,11 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: shopogolik
-  namespace: app
   creationTimestamp: null
   labels:
     name: shopogolik
+  name: shopogolik
 spec:
   progressDeadlineSeconds: 2147483647
   replicas: 1
@@ -39,13 +38,13 @@ spec:
         - name: FIRST_SUPERUSER
           valueFrom:
             secretKeyRef:
-              key: superuser
               name: server-credentials
+              key: superuser
         - name: FIRST_SUPERUSER_PASSWORD
           valueFrom:
             secretKeyRef:
-              key: superuser_pwd
               name: server-credentials
+              key: superuser_pwd
 
         image: rash77/shopogolik-backend:v1.6
         imagePullPolicy: Always
