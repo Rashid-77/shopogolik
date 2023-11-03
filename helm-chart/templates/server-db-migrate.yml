@@ -1,0 +1,55 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  creationTimestamp: null
+  labels:
+    name: {{ .Release.Name}}-job
+  name: {{ .Release.Name}}-job
+
+spec:
+  activeDeadlineSeconds: 240
+  ttlSecondsAfterFinished: 120
+  template:
+    spec:
+      containers:
+      - env:
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: shopogolik-cm
+              key: db_name
+        - name: POSTGRES_HOST
+          value: {{ .Release.Name}}-db
+        - name: POSTGRES_PORT
+          value: {{ .Values.db.port | quote}}
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              key: user
+              name: postgres-credentials
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: postgres-credentials
+        - name: FIRST_SUPERUSER
+          valueFrom:
+            secretKeyRef:
+              name: server-credentials
+              key: superuser
+        - name: FIRST_SUPERUSER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: server-credentials
+              key: superuser_pwd
+        image: {{ .Values.server.image.repository }}
+        imagePullPolicy: {{ .Values.server.image.pullPolicy }}
+        name: {{ .Release.Name}}-job
+        resources: {}
+        command: ["/bin/sh"]
+        args: ["/code/create_tables_and_superuser.sh"]
+      dnsPolicy: ClusterFirst
+      restartPolicy: OnFailure
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30

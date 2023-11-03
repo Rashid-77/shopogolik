@@ -1,0 +1,52 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  creationTimestamp: null
+  labels:
+    name: shopogolik
+  name: shopogolik
+
+spec:
+  activeDeadlineSeconds: 240
+  ttlSecondsAfterFinished: 120
+  template:
+    spec:
+      containers:
+      - env:
+        - name: POSTGRES_DB
+          value: shopgolik_db
+        - name: POSTGRES_HOST
+          value: postgres
+        - name: POSTGRES_PORT
+          value: '5432'
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              key: user
+              name: postgres-credentials
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: postgres-credentials
+        - name: FIRST_SUPERUSER
+          valueFrom:
+            secretKeyRef:
+              name: server-credentials
+              key: superuser
+        - name: FIRST_SUPERUSER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: server-credentials
+              key: superuser_pwd
+        image: rash77/shopogolik-backend:v1.6
+        imagePullPolicy: IfNotPresent
+        name: db-migrate
+        resources: {}
+        command: ["/bin/sh"]
+        args: ["/code/create_tables_and_superuser.sh"]
+      dnsPolicy: ClusterFirst
+      restartPolicy: OnFailure
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30

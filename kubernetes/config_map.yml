@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  labels:
+    name: shopogolik-cm
+  name: shopogolik-cm
+data:
+  db_name: "shopgolik_db"
+  db_host: "postgres"
+  db_port: "5432"

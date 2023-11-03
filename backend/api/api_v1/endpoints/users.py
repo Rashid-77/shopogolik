@@ -3,12 +3,20 @@ from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from backend import crud, get_logger, schemas
-from backend.api import deps
+# from backend import crud, get_logger, schemas
+import crud, schemas
+from api import deps
 
 router = APIRouter()
 
-logger = get_logger(__name__)
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(asctime)s] %(levelname).1s %(message)s",
+    datefmt="%Y.%m.%d %H:%M:%S",
+)
+
+# logger = get_logger(__name__)
 
 @router.post("/", response_model=schemas.User)
 def create_user(

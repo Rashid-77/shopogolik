@@ -6,15 +6,23 @@ from jose import JWTError
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
-from backend import crud, get_logger, models
-from backend.db.session import SessionLocal
-from backend.schemas.token import TokenData
+# from backend import crud, get_logger, models
+import crud, models
+from db.session import SessionLocal
+from schemas.token import TokenData
 
 # from app.core import security
-from backend.utils.config import get_settings
-from backend.utils.security import decode_access_token  # noqa
+from utils.config import get_settings
+from utils.security import decode_access_token  # noqa
 
-logger = get_logger(__name__)
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(asctime)s] %(levelname).1s %(message)s",
+    datefmt="%Y.%m.%d %H:%M:%S",
+)
+
+# logger = get_logger(__name__)
 
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl=f"{get_settings().API_V1_STR}/login")
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
@@ -46,7 +54,8 @@ async def get_current_user(
         raise credentials_exception
 
     user = crud.user.get(db, id=token_data.sub)
-    logger.info(f"...{user=}")
+    # logger.info(f"...{user=}")
+    logging.info(f"...{user=}")
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user

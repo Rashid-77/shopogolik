@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name}}-db
+  creationTimestamp: null
+  labels:
+    name: {{ .Release.Name}}-db
+spec:
+  progressDeadlineSeconds: 2147483647
+  replicas: 1
+  selector:
+    matchLabels:
+      service: {{ .Release.Name}}-db
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        service: {{ .Release.Name}}-db
+    spec:
+      containers:
+      - name: {{ .Release.Name}}-db
+        image: postgres:15.0-alpine
+        env:
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: postgres-credentials
+                key: user
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-credentials
+                key: password
+          - name: POSTGRES_DB
+            valueFrom:
+              configMapKeyRef:
+                name: shopogolik-cm
+                key: db_name
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: postgres-volume-mount
+        resources: {}
+          # limits:
+          #   memory: 2Gi
+          #   cpu: "1"
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: postgres-volume-mount
+        persistentVolumeClaim:
+          claimName: postgres-pvc
