@@ -55,7 +55,7 @@ spec:
               name: server-credentials
               key: superuser_pwd
 
-        image: rash77/shopogolik-backend:v1.6
+        image: rash77/shopogolik-backend:v1.7
         imagePullPolicy: Always
         name: shopogolik
         resources: {}

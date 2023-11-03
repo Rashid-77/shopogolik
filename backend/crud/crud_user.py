@@ -1,7 +1,7 @@
 from typing import Any, Dict, Optional, Union
 
 from fastapi import HTTPException
-from sqlalchemy import text
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 # from backend import get_logger
@@ -29,6 +29,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def get_by_email(self, db: Session, *, email: str) -> Optional[User]:
         return db.query(User).filter(User.email == email).first()
     
+    def is_user_exists(self, db: Session, *, username: str, email: str) -> Optional[User]:
+        return db.query(User).filter(or_(User.username == username, User.email == email)).first()
+
     def create(self, db: Session, *, obj_in: UserCreate) -> User:
         db_obj = User(
             username=obj_in.username,

@@ -1,8 +1,8 @@
 server:
   replicaCount: 1
   image:
-    repository: rash77/shopogolik-backend:v1.6
-    pullPolicy: IfNotPresent
+    repository: rash77/shopogolik-backend:v1.7
+    pullPolicy: Always
   port: 8000
   targetPort: 8000
   host: arch.homework
