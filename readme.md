@@ -2,10 +2,6 @@
 The goal of this project is to experiments with kubernetes.
 Python3.10, FastApi, Postgress, docker compose V2 are used.
 
-**Prerequisite**
-
-DB Postgress
-
 **How to use with docker compose**
 
 To start project
@@ -26,4 +22,83 @@ And access it through the browser:
 <code>http://127.0.0.1:8000/docs</code>
 
 
+**Deploy to kubernetes cluster**
+
+You can spin up your claster step by step with kubernetes manifests, and watch the status of every instance. Or you can do it with helm
+
+First of all you need installed Minikube
+
+Then start it:
+
+<code>minikube start</code>
+
+
 **How to use with kubernetes**
+
+<code>kubectl create -f ./kubernetes/persistent-volume.yml</code>
+
+<code>kubectl get pv</code>
+
+<code>kubectl create -f ./kubernetes/persistent-volume-claim.yml</code>
+
+<code>kubectl get pvc</code>
+
+<code>kubectl create -f ./kubernetes/postgres-secret.yml</code>
+
+<code>kubectl create -f ./kubernetes/server-secret.yml</code>
+
+<code>kubectl get secret</code>
+
+<code>kubectl apply -f ./kubernetes/config_map.yml</code>
+
+<code>kubectl get configmap</code>
+
+<code>kubectl create -f ./kubernetes/postgres-deployment.yml</code>
+
+<code>kubectl get deployment</code>
+
+<code>kubectl create -f ./kubernetes/postgres-service.yml</code>
+
+<code>kubectl get svc</code>
+
+<code>kubectl create -f ./kubernetes/server-deployment.yml</code>
+
+<code>kubectl create -f ./kubernetes/server-service.yml</code>
+
+<code>kubectl create -f ./kubernetes/server-db-migrate.yml</code>
+
+<code>kubectl get job</code>
+
+<code>minikube addons enable ingress</code>      (if not enabled yet)
+
+<code>kubectl apply -f ./kubernetes/minikube-ingress.yml</code>
+
+<code>kubectl get ingress</code>
+
+Add host name to file /etc/hosts, to resolve a name into an address
+
+<code>echo "$(minikube ip) arch.homework" | sudo tee -a /etc/hosts</code>
+ 
+ Now you can check the app with browser
+
+ http://arch.homework/docs  
+
+**How to use with Helm**
+
+First install helm.
+
+To deploy app use command:
+
+<code>helm install shopogolik ./helm-chart</code>
+
+now you can see its status
+
+<code>helm list</code>
+
+Check the app with browser
+
+http://arch.homework/docs 
+
+To shutdown app:
+
+<code>helm uinstall shopogolik ./helm-chart</code>
