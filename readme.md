@@ -102,3 +102,16 @@ http://arch.homework/docs
 To shutdown app:
 
 <code>helm uinstall shopogolik ./helm-chart</code>
+
+
+**Testing**
+
+Use this test to test crud on user.
+The test should be conducted on a database with a single user created when the 
+application was first launched, and no more users have been created. 
+
+To test use newman:
+
+<code>newman run microservice-03.postman_collection.json --env-var "BASE_URL=http://arch.homework"</code>
+
+To test again drop all tables and restart app.
