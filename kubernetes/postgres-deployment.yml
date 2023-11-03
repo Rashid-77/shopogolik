@@ -32,7 +32,10 @@ spec:
                 name: postgres-credentials
                 key: password
           - name: POSTGRES_DB
-            value: shopgolik_db
+            valueFrom:
+              configMapKeyRef:
+                name: shopogolik-cm
+                key: db_name
         volumeMounts:
         - mountPath: /var/lib/postgresql/data
           name: postgres-volume-mount

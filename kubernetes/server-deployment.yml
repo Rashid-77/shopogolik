@@ -20,11 +20,20 @@ spec:
       containers:
       - env:
         - name: POSTGRES_DB
-          value: shopgolik_db
+          valueFrom:
+            configMapKeyRef:
+              name: shopogolik-cm
+              key: db_name
         - name: POSTGRES_HOST
-          value: postgres
+          valueFrom:
+            configMapKeyRef:
+              name: shopogolik-cm
+              key: db_host
         - name: POSTGRES_PORT
-          value: '5432'
+          valueFrom:
+            configMapKeyRef:
+              name: shopogolik-cm
+              key: db_port
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
