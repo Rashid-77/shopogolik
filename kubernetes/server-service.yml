@@ -9,4 +9,5 @@ spec:
     app: shopogolik
   ports:
   - port: 8000
+    name: shop_srv_port
     targetPort: 8000

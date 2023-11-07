@@ -13,4 +13,5 @@ tenacity
 alembic
 sqlalchemy>=2.0
 # dev
+prometheus-client
 pytest

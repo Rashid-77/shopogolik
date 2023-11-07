@@ -20,7 +20,7 @@ logging.basicConfig(
 )
 
 # logger = get_logger(__name__)
-logging.info('hello user_crud')
+
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def get_by_username(self, db: Session, *, username: str) -> Optional[User]:

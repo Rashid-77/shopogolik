@@ -9,4 +9,5 @@ spec:
     app: {{ .Release.Name}}-dp
   ports:
   - port: {{ .Values.server.port }}
+    name: {{ .Values.server.portName }}
     targetPort: {{ .Values.server.targetPort }}
