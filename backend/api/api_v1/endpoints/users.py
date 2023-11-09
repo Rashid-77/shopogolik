@@ -1,13 +1,15 @@
-from typing import Any, List
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from prometheus_client import Summary
 from sqlalchemy.orm import Session
 
-# from backend import crud, get_logger, schemas
 import crud, schemas
 from api import deps
 
 router = APIRouter()
+REQUEST_TIME = Summary('request_latency_seconds', 'Time spent processing request', ['endpoint'])
+
 
 import logging
 logging.basicConfig(
@@ -19,6 +21,7 @@ logging.basicConfig(
 # logger = get_logger(__name__)
 
 @router.post("/", response_model=schemas.User)
+@REQUEST_TIME.labels(endpoint='/user').time()
 def create_user(
     *,
     db: Session = Depends(deps.get_db),
@@ -39,6 +42,7 @@ def create_user(
 
 
 @router.get("/{user_id}", response_model=schemas.User)
+@REQUEST_TIME.labels(endpoint='/user').time()
 def read_user_by_id(
     user_id: int,
     # current_user: models.User = Depends(deps.get_current_active_user),
@@ -47,6 +51,9 @@ def read_user_by_id(
     """
     Get a specific user by id.
     """
+    if user_id == 3:
+        raise ValueError
+    
     user = crud.user.get(db, id=user_id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
@@ -60,6 +67,7 @@ def read_user_by_id(
 
 
 @router.put("/{user_id}", response_model=schemas.User)
+@REQUEST_TIME.labels(endpoint='/user').time()
 def update_user(
     *,
     db: Session = Depends(deps.get_db),
@@ -81,6 +89,7 @@ def update_user(
 
 
 @router.delete("/{user_id}", response_model=schemas.User)
+@REQUEST_TIME.labels(endpoint='/user').time()
 def delete_user(
     *,
     db: Session = Depends(deps.get_db),

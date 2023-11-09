@@ -14,5 +14,4 @@ alembic
 sqlalchemy>=2.0
 # dev
 prometheus-client
-prometheus-fastapi-instrumentator
 pytest
