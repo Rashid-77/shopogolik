@@ -3,19 +3,19 @@ kind: Deployment
 metadata:
   creationTimestamp: null
   labels:
-    name: {{ .Release.Name}}-dp
-  name: {{ .Release.Name}}-dp
+    name: {{ .Release.Name }}
+  name: {{ .Release.Name }}
 spec:
   progressDeadlineSeconds: 2147483647
   replicas: {{ .Values.server.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Release.Name}}-dp
+      app: {{ .Release.Name }}
   template:
     metadata:
       creationTimestamp: null
       labels:
-        app: {{ .Release.Name}}-dp
+        app: {{ .Release.Name }}
     spec:
       containers:
       - env:
@@ -25,9 +25,9 @@ spec:
               name: shopogolik-cm
               key: db_name
         - name: POSTGRES_HOST
-          value: {{ .Release.Name}}-db
+          value: {{ .Release.Name }}-db
         - name: POSTGRES_PORT
-          value: {{ .Values.db.port | quote}}
+          value: {{ .Values.db.port | quote }}
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
@@ -51,7 +51,10 @@ spec:
 
         image: {{ .Values.server.image.repository }}
         imagePullPolicy: {{ .Values.server.image.pullPolicy }}
-        name: {{ .Release.Name}}-dp
+        name: {{ .Release.Name }}
+        ports:
+        - name: {{ .Values.server.portName }}
+          containerPort: {{ .Values.server.port }}
         resources: {}
           # limits:
           #   memory: 2Gi

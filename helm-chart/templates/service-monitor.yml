@@ -1,0 +1,21 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+    
+spec:
+  endpoints:
+    - port: {{ .Values.server.portName }}
+      scrapeTimeout: 30s
+      path: /metrics
+      honorLabels: true
+      scheme: http
+#  jobLabel: stack
+  namespaceSelector:
+    matchNames:
+      - default
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
