@@ -3,7 +3,7 @@ kind: ServiceMonitor
 metadata:
   name: {{ .Release.Name }}
   labels:
-    app: {{ .Release.Name }}
+    team: backenders
     
 spec:
   endpoints:

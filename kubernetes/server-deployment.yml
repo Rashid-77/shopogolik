@@ -55,9 +55,12 @@ spec:
               name: server-credentials
               key: superuser_pwd
 
-        image: rash77/shopogolik-backend:v1.7
+        image: rash77/shopogolik:v1.7.2
         imagePullPolicy: Always
         name: shopogolik
+        ports:
+        - name: shopport
+          containerPort: 8000
         resources: {}
           # limits:
           #   memory: 2Gi

@@ -3,11 +3,11 @@ kind: Service
 metadata:
   name: shopogolik
   labels:
-    service: shopogolik
+    app: shopogolik
 spec:
   selector:
     app: shopogolik
   ports:
   - port: 8000
-    name: shop_srv_port
+    name: shopport
     targetPort: 8000

@@ -1,13 +1,13 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: metrics-demo-monitor
+  name: shopogolik
   labels:
-    app: metrics-demo-monitor
+    team: metrics-demo-monitor
     
 spec:
   endpoints:
-    - port: shop_srv_port
+    - port: shopport
       scrapeTimeout: 30s
       path: /metrics     
       honorLabels: true
