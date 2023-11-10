@@ -16,7 +16,7 @@ from prometheus_client import Summary, Counter
 
 from logger import logger
 
-REQUEST_5XX_COUNT = Counter('response_5xx', 'The unhandled failures counter')
+REQUEST_5XX_COUNT = Counter('count_5xx', 'The unhandled failures counter')
 
 async def request_validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
     """

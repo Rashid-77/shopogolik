@@ -39,7 +39,7 @@ spec:
             secretKeyRef:
               name: server-credentials
               key: superuser_pwd
-        image: rash77/shopogolik:v1.7.2
+        image: rash77/shopogolik:v1.7.3
         imagePullPolicy: IfNotPresent
         name: db-migrate
         resources: {}
