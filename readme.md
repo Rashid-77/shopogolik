@@ -101,7 +101,7 @@ http://arch.homework/docs
 
 To shutdown app:
 
-<code>helm uinstall shopogolik ./helm-chart</code>
+<code>helm uninstall shopogolik</code>
 
 
 **Testing**
@@ -115,3 +115,44 @@ To test use newman:
 <code>newman run microservice-03.postman_collection.json --env-var "BASE_URL=http://arch.homework"</code>
 
 To test again drop all tables and restart app.
+
+
+**Metrics**
+
+Install Prometheus and Grafana
+
+<code>helm repo add prometheus-community https://prometheus-community.github.io/helm-charts</code>
+
+<code>helm repo update</code>
+
+<code>helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
+ --create-namespace -n monitoring -f metrics/kube-prometheus-stack.yml</code>
+
+<code>helm upgrade --install ingress-nginx ingress-nginx \
+  --repo https://kubernetes.github.io/ingress-nginx \
+  --namespace ingress-nginx --create-namespace \
+  --set controller.metrics.enabled=true \
+  --set controller.metrics.serviceMonitor.enabled=true \
+  --set controller.metrics.serviceMonitor.additionalLabels.release="kube-prometheus-stack"</code>
+
+<code>helm install shopogolik ./helm-chart</code>
+
+From your terminal:
+
+<code>kubectl port-forward -n ingress-nginx service/ingress-nginx-controller 8080:80</code>
+
+Then edit your "hosts" file
+
+<code>127.0.0.1 arch.homework
+127.0.0.1 grafana.homework</code>
+
+Now you can check app in browser 
+
+http://arch.homework:8080/api/v1/user/1
+
+http://arch.homework:8080/metrics
+
+And open grafana with credential  admin:admin at
+
+Copy the nginx.json from metrics folder and paste it into http://grafana.localdev.me:8080/dashboard/import to import the dashboard.
+

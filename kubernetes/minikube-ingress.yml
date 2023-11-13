@@ -1,9 +1,10 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: minikube-ingress
+  name: shop-ingress
   annotations:
 spec:
+  ingressClassName: nginx
   rules:
   - host: arch.homework
     http:
