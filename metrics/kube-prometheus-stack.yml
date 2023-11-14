@@ -1,6 +1,11 @@
+
 grafana:
   enabled: true
   adminPassword: "admin"
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
   persistence:
     enabled: true
     accessModes: ["ReadWriteOnce"]
@@ -10,4 +15,3 @@ grafana:
     ingressClassName: nginx
     hosts:
       - grafana.homework
-      # - grafana.localdev.me

@@ -85,7 +85,7 @@ Add host name to file /etc/hosts, to resolve a name into an address
 
 **How to use with Helm**
 
-First install helm.
+First install <a href="https://helm.sh/docs/intro/install/"> helm.</a>
 
 To deploy app use command:
 
@@ -128,31 +128,52 @@ Install Prometheus and Grafana
 <code>helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
  --create-namespace -n monitoring -f metrics/kube-prometheus-stack.yml</code>
 
-<code>helm upgrade --install ingress-nginx ingress-nginx \
-  --repo https://kubernetes.github.io/ingress-nginx \
-  --namespace ingress-nginx --create-namespace \
-  --set controller.metrics.enabled=true \
-  --set controller.metrics.serviceMonitor.enabled=true \
+Add dashboard to grafana
+
+<code>kubectl apply  -f metrics/kube-prometheus-stack.yml -f metrics/grafana.yml</code>
+
+Now install ingress nginx:
+
+<code>helm upgrade --install ingress-nginx ingress-nginx \\
+  --repo https://kubernetes.github.io/ingress-nginx \\
+  --namespace ingress-nginx --create-namespace \\
+  --set controller.metrics.enabled=true \\
+  --set controller.metrics.serviceMonitor.enabled=true \\
   --set controller.metrics.serviceMonitor.additionalLabels.release="kube-prometheus-stack"</code>
+
+Then install app:
 
 <code>helm install shopogolik ./helm-chart</code>
 
+Make your ingress nginx accesible from outside the cluster.
 From your terminal:
 
 <code>kubectl port-forward -n ingress-nginx service/ingress-nginx-controller 8080:80</code>
 
-Then edit your "hosts" file
+Then edit your "hosts" file.
 
-<code>127.0.0.1 arch.homework
-127.0.0.1 grafana.homework</code>
+127.0.0.1 arch.homework
+
+127.0.0.1 grafana.homework
 
 Now you can check app in browser 
 
 http://arch.homework:8080/api/v1/user/1
 
+And check metrics from app
+
 http://arch.homework:8080/metrics
 
-And open grafana with credential  admin:admin at
+Then open grafana with credential  admin:admin at http://grafana.homework:8080/
 
-Copy the nginx.json from metrics folder and paste it into http://grafana.localdev.me:8080/dashboard/import to import the dashboard.
+Go to the previously installed dashboard http://grafana.homework:8080/d/nginx/nginx-ingress-controller?orgId=1
 
+Make some requests to app, for example http://arch.homework:8080/api/v1/user/1
+then go to grafana and choose in right upper corner time period, 5min for example and set update period 5s in the same corner
+
+If you want to access prometheus UI, you have to expose its port outside of clister
+Open another terminal and paste command:
+
+</code>kubectl port-forward -n monitoring service/prometheus-operated  9090</code>
+
+Then go to http://127.0.0.1:9090/
