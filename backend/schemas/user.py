@@ -18,7 +18,7 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     username: str
     is_superuser: bool
-    # password: str
+    password: str
     pass
 
 
