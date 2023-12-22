@@ -1,6 +1,6 @@
 from typing import Annotated, Generator
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Header
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 from pydantic import ValidationError
@@ -11,21 +11,11 @@ import crud, models
 from db.session import SessionLocal
 from schemas.token import TokenData
 
-# from app.core import security
 from utils.config import get_settings
 from utils.security import decode_access_token  # noqa
-
-import logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="[%(asctime)s] %(levelname).1s %(message)s",
-    datefmt="%Y.%m.%d %H:%M:%S",
-)
-
-# logger = get_logger(__name__)
+from logger import logger
 
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl=f"{get_settings().API_V1_STR}/login")
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
 def get_db() -> Generator:
@@ -37,25 +27,32 @@ def get_db() -> Generator:
 
 
 async def get_current_user(
-    db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)
-) -> models.User:
-    credentials_exception = HTTPException(
+    db: Session = Depends(get_db),
+    x_userid: Annotated[str | None, Header()] = None,
+    x_username: Annotated[str | None, Header()] = None,
+    x_first_name: Annotated[str | None, Header()] = "",
+    x_last_name: Annotated[str | None, Header()] = "",
+    x_email: Annotated[str | None, Header()] = None,
+    x_phone: Annotated[str | None, Header()] = "",
+    ) -> models.User:
+
+    if ((x_userid is None or x_userid=="")
+        or (x_username is None or x_username=="")
+        or (x_email is None or x_email=="")):
+        raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    try:
-        payload = decode_access_token(token)
-        user_id: str = payload.get("sub")
-        if user_id is None:
-            raise credentials_exception
-        token_data = TokenData(user_id=user_id)
-    except (JWTError, ValidationError):
-        raise credentials_exception
-
-    user = crud.user.get(db, id=token_data.sub)
-    # logger.info(f"...{user=}")
-    logging.info(f"...{user=}")
+    user = models.User(
+        id = int(x_userid),
+        username=x_username,
+        first_name=x_first_name,
+        last_name=x_last_name,
+        email = x_email,
+        phone = x_phone,
+        disabled=False,
+    )
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user

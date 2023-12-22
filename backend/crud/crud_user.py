@@ -20,7 +20,7 @@ logging.basicConfig(
 )
 
 # logger = get_logger(__name__)
-
+from logger import logger
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def get_by_username(self, db: Session, *, username: str) -> Optional[User]:
@@ -39,7 +39,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             last_name=obj_in.last_name,
             email = obj_in.email,
             phone = obj_in.phone,
-            hashed_password=get_password_hash("pwd"),
+            hashed_password=get_password_hash(obj_in.password),
             disabled=False,
             is_superuser=obj_in.is_superuser,
         )

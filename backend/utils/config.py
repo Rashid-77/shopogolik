@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     first_superuser: EmailStr = os.getenv("FIRST_SUPERUSER", "")
     first_superuser_password: str = os.getenv("FIRST_SUPERUSER_PASSWORD", "")
 
+    secret: str = os.getenv("SECRET", "")
+
 
 # TODO Make this settings a global object
 def get_settings():
