@@ -7,7 +7,7 @@ metadata:
     
 spec:
   endpoints:
-    - port: {{ .Values.auth-server.portName }}
+    - port: {{ .Values.authServer.portName }}
       scrapeTimeout: 30s
       path: /metrics
       honorLabels: true

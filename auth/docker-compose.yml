@@ -10,7 +10,7 @@ services:
     volumes:
       - .:/code
     ports:
-      - '8001:8000'
+      - '8001:8001'
 
 networks:
   shop_network:

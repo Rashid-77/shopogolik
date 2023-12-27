@@ -1,11 +1,12 @@
 server:
   replicaCount: 1
   image:
-    repository: rash77/shopogolik:v1.8.0
+    repository: rash77/shopogolik:v1.8.1
     pullPolicy: Always
-  port: 8001
+  port: 80
   portName: shopsvc
-  targetPort: 8001
+  targetPort: 8000
+  host: arch.homework
   autoscaling:
     enabled: false
     minReplicas: 1

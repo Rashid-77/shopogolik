@@ -8,6 +8,7 @@ spec:
   selector:
     app: {{ .Release.Name }}
   ports:
-  - port: {{ .Values.auth-server.port }}
-    name: {{ .Values.auth-server.portName }}
-    targetPort: {{ .Values.auth-server.targetPort }}
+  - port: {{ .Values.authServer.port }}
+    name: {{ .Values.authServer.portName }}
+    targetPort: {{ .Values.authServer.targetPort }}
+  type: NodePort

@@ -11,3 +11,4 @@ spec:
   - port: {{ .Values.server.port }}
     name: {{ .Values.server.portName }}
     targetPort: {{ .Values.server.targetPort }}
+  type: NodePort

@@ -54,7 +54,7 @@ spec:
         name: {{ .Release.Name }}
         ports:
         - name: {{ .Values.server.portName }}
-          containerPort: {{ .Values.server.port }}
+          containerPort: {{ .Values.server.targetPort }}
         resources: {}
           # limits:
           #   memory: 2Gi

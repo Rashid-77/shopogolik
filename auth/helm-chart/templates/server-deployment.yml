@@ -7,7 +7,7 @@ metadata:
   name: {{ .Release.Name }}
 spec:
   progressDeadlineSeconds: 2147483647
-  replicas: {{ .Values.auth-server.replicaCount }}
+  replicas: {{ .Values.authServer.replicaCount }}
   selector:
     matchLabels:
       app: {{ .Release.Name }}
@@ -49,12 +49,12 @@ spec:
               name: server-credentials
               key: superuser_pwd
 
-        image: {{ .Values.auth-server.image.repository }}
-        imagePullPolicy: {{ .Values.auth-server.image.pullPolicy }}
+        image: {{ .Values.authServer.image.repository }}
+        imagePullPolicy: {{ .Values.authServer.image.pullPolicy }}
         name: {{ .Release.Name }}
         ports:
-        - name: {{ .Values.auth-server.portName }}
-          containerPort: {{ .Values.auth-server.port }}
+        - name: {{ .Values.authServer.portName }}
+          containerPort: {{ .Values.authServer.port }}
         resources: {}
           # limits:
           #   memory: 2Gi
