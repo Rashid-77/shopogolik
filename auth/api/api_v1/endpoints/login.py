@@ -1,8 +1,8 @@
 from datetime import timedelta
-from typing import Any
+from typing import Any, Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Response
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, Depends, HTTPException, Header, Response, status
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 import crud, schemas, models
@@ -50,18 +50,56 @@ def logout(current_user: models.User = Depends(deps.get_current_active_user)) ->
         "token_type": "bearer",
     }
 
+@router.get("/signin", response_model=schemas.Token)
+def signin() -> Any:
+    """
+    Redirection to the login page
+    """
+    return {"message": "Please go to login and provide Login/Password"}
 
-@router.post("/auth")# , response_model=schemas.XAuthHeaders)
-def authenticate(current_user: models.User = Depends(deps.get_current_active_user)) -> Any:
+
+from utils.security import decode_access_token  # noqa
+from jose import JWTError
+from pydantic import ValidationError
+
+oath_jwt_token = OAuth2PasswordBearer(tokenUrl="token")
+
+@router.get("/auth")# , response_model=schemas.XAuthHeaders)
+def authenticate(
+        # authorization: Annotated[str | None, Header()] = None,
+        token: Annotated[str, Depends(oath_jwt_token)],
+        db: Session = Depends(deps.get_db), 
+    ) -> Any:
     """
     Authenticate user
     """
+
     logger.info("--> authenticate()")
+    # scheme, _, token = authorization.partition(" ")
+
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = decode_access_token(token)
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise credentials_exception
+        # token_data = TokenData(user_id=user_id)
+    except (JWTError, ValidationError):
+        raise credentials_exception
+
+    current_user = crud.user.get(db, id=user_id)
+    if current_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
     response = Response()
     response.headers["X-UserId"] = str(current_user.id)
     response.headers["X-User"] = str(current_user.username)
     response.headers["X-First-Name"] = str(current_user.first_name)
-    response.headers["X-Lirst-Name"] = str(current_user.last_name)
+    response.headers["X-Last-Name"] = str(current_user.last_name)
     response.headers["X-Email"] = str(current_user.email)
     response.headers["X-Phone"] = str(current_user.phone)
 

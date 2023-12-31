@@ -1,7 +1,7 @@
 authServer:
   replicaCount: 1
   image:
-    repository: rash77/shopogolik-auth:v0.0.1
+    repository: rash77/shopogolik-auth:v0.0.2
     pullPolicy: Always
   port: 8000
   portName: auth-shopsvc
@@ -14,6 +14,8 @@ authServer:
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
 
+db:
+  port: 5432
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

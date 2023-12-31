@@ -20,33 +20,30 @@ spec:
       containers:
       - env:
         - name: POSTGRES_DB
-          valueFrom:
-            configMapKeyRef:
-              name: shopogolik-cm
-              key: db_name
+          value: "shopgolik_db"
         - name: POSTGRES_HOST
-          value: {{ .Release.Name }}-db
+          value: postgres
         - name: POSTGRES_PORT
           value: {{ .Values.db.port | quote }}
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
               key: user
-              name: postgres-credentials
+              name: auth-postgres-credentials
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
               key: password
-              name: postgres-credentials
+              name: auth-postgres-credentials
         - name: FIRST_SUPERUSER
           valueFrom:
             secretKeyRef:
-              name: server-credentials
+              name: auth-server-credentials
               key: superuser
         - name: FIRST_SUPERUSER_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: server-credentials
+              name: auth-server-credentials
               key: superuser_pwd
 
         image: {{ .Values.authServer.image.repository }}

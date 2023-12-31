@@ -14,12 +14,9 @@ spec:
       containers:
       - env:
         - name: POSTGRES_DB
-          valueFrom:
-            configMapKeyRef:
-              name: shopogolik-cm
-              key: db_name
+          value: "shopgolik_db"
         - name: POSTGRES_HOST
-          value: {{ .Release.Name}}-db
+          value: postgres
         - name: POSTGRES_PORT
           value: {{ .Values.db.port | quote}}
         - name: POSTGRES_USER

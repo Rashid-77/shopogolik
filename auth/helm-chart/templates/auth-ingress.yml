@@ -13,5 +13,47 @@ spec:
             name: {{ .Release.Name}}
             port:
               number: {{ .Values.authServer.port }}
-        path: /login
-        pathType: Prefix
+        path: /docs
+        pathType: Exact
+      - backend:
+          service:
+            name: {{ .Release.Name}}
+            port:
+              number: {{ .Values.authServer.port }}
+        path: /api/v1/login
+        pathType: Exact
+      - backend:
+          service:
+            name: {{ .Release.Name}}
+            port:
+              number: {{ .Values.authServer.port }}
+        path: /api/v1/logout
+        pathType: Exact
+      - backend:
+          service:
+            name: {{ .Release.Name}}
+            port:
+              number: {{ .Values.authServer.port }}
+        path: /api/v1/user/register
+        pathType: Exact
+      - backend:
+          service:
+            name: {{ .Release.Name}}
+            port:
+              number: {{ .Values.authServer.port }}
+        path: /api/v1/ping/
+        pathType: Exact
+      - backend:
+          service:
+            name: {{ .Release.Name}}
+            port:
+              number: {{ .Values.authServer.port }}
+        path: /api/v1/auth
+        pathType: Exact
+      - backend:
+          service:
+            name: {{ .Release.Name}}
+            port:
+              number: {{ .Values.authServer.port }}
+        path: /openapi.json
+        pathType: Exact

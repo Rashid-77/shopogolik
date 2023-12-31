@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 import crud, schemas, models
 from api import deps
+from logger import logger
 
 
 router = APIRouter()
@@ -21,6 +22,7 @@ def read_user_me(
     """
     Get a current user info.
     """
+    logger.info("read_user_me()")
     current_user.id = int(current_user.id)
     return current_user
 

@@ -2,16 +2,20 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: shop-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/auth-url: "http://arch.homework/api/v1/auth"
+    nginx.ingress.kubernetes.io/auth-signin: "http://arch.homework/api/v1/signig"
+    nginx.ingress.kubernetes.io/auth-response-headers: "X-UserId,X-User,X-First-Name,X-Last-Name,X-Email,X-Phone"
 spec:
   ingressClassName: nginx
   rules:
   - host: {{ .Values.server.host }}
     http:
       paths:
-      - path: /
-        pathType: Prefix
-        backend:
+      - backend:
           service:
             name: {{ .Release.Name}}
             port:
               number: {{ .Values.server.port }}
+        path: /api/v1/user/me
+        pathType: Exact

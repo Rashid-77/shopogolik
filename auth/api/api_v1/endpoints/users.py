@@ -12,7 +12,7 @@ router = APIRouter()
 REQUEST_TIME_BACKET = Histogram('request_latency_seconds', 'Time spent processing request', ['endpoint'])
 
 
-@router.post("/", response_model=schemas.User)
+@router.post("/register", response_model=schemas.User)
 @REQUEST_TIME_BACKET.labels(endpoint='/user').time()
 def create_user(
     *,
