@@ -40,9 +40,10 @@ def read_user_by_id(
     user = crud.user.get(db, id=user_id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
-    return user
-
-
+    if user.id == current_user.id or current_user.is_superuser:
+        return user
+    raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
+    
 
 @router.put("/{user_id}", response_model=schemas.User)
 @REQUEST_TIME_BACKET.labels(endpoint='/user').time()

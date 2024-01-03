@@ -13,13 +13,6 @@ spec:
             name: {{ .Release.Name}}
             port:
               number: {{ .Values.authServer.port }}
-        path: /docs
-        pathType: Exact
-      - backend:
-          service:
-            name: {{ .Release.Name}}
-            port:
-              number: {{ .Values.authServer.port }}
         path: /api/v1/login
         pathType: Exact
       - backend:
@@ -48,7 +41,21 @@ spec:
             name: {{ .Release.Name}}
             port:
               number: {{ .Values.authServer.port }}
+        path: /api/v1/signin
+        pathType: Exact
+      - backend:
+          service:
+            name: {{ .Release.Name}}
+            port:
+              number: {{ .Values.authServer.port }}
         path: /api/v1/auth
+        pathType: Exact
+      - backend:
+          service:
+            name: {{ .Release.Name}}
+            port:
+              number: {{ .Values.authServer.port }}
+        path: /docs
         pathType: Exact
       - backend:
           service:

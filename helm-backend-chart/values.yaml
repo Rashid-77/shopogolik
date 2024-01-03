@@ -1,7 +1,7 @@
 server:
   replicaCount: 1
   image:
-    repository: rash77/shopogolik:v1.8.1
+    repository: rash77/shopogolik:v1.8.2
     pullPolicy: Always
   port: 8000
   portName: shopsvc

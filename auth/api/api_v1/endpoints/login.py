@@ -50,7 +50,7 @@ def logout(current_user: models.User = Depends(deps.get_current_active_user)) ->
         "token_type": "bearer",
     }
 
-@router.get("/signin", response_model=schemas.Token)
+@router.get("/signin")
 def signin() -> Any:
     """
     Redirection to the login page
