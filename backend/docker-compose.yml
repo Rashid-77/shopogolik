@@ -13,6 +13,8 @@ services:
       - '8000:8000'
     depends_on:
       - postgres
+    networks:
+      - shop_network
 
   postgres:
     image: postgres:15.0-alpine
@@ -25,3 +27,9 @@ services:
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
       - ./pg_data:/var/lib/postgresql/data/pgdata 
+    networks:
+      - shop_network
+
+networks:
+  shop_network:
+    driver: bridge

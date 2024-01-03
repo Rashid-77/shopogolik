@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     pg_host: str = os.getenv("POSTGRES_HOST", "")
     pg_port: str = os.getenv("POSTGRES_PORT", "")
     pg_database: str = os.getenv("POSTGRES_DB", "")
+    
     pg_url: str = f"postgresql://{pg_user}:{pg_pass}@{pg_host}:{pg_port}/{pg_database}"
 
     first_superuser: EmailStr = os.getenv("FIRST_SUPERUSER", "")

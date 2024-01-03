@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  labels:
+    name: auth-shopogolik-cm
+  name: auth-shopogolik-cm
+data:
+  db_name: "shopgolik_db"

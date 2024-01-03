@@ -12,15 +12,6 @@ from utils.security import get_password_hash, verify_password
 
 from .base import ModelType
 
-import logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="[%(asctime)s] %(levelname).1s %(message)s",
-    datefmt="%Y.%m.%d %H:%M:%S",
-)
-
-# logger = get_logger(__name__)
-from logger import logger
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def get_by_username(self, db: Session, *, username: str) -> Optional[User]:

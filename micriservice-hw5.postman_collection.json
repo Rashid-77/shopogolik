@@ -1,0 +1,560 @@
+{
+	"info": {
+		"_postman_id": "6f0384b7-40eb-42fc-bd66-5173634c8b5e",
+		"name": "micriservice-hw5",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "12870437"
+	},
+	"item": [
+		{
+			"name": "http://{{BASE_URL}}/api/v1/user/register user1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"username\", pm.collectionVariables.get('user1'))",
+							"        .and.have.jsonBody(\"first_name\", \"A\")",
+							"        .and.have.jsonBody(\"last_name\", \"M\")",
+							"        .and.have.jsonBody(\"email\", pm.collectionVariables.get('email_1'))",
+							"        .and.have.jsonBody(\"phone\", \"299-653-4964\")",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.collectionVariables.set('user1_id', jsonData.id);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let user1 = pm.variables.replaceIn(\"{{$randomFirstName}}\");",
+							"let user2 = pm.variables.replaceIn(\"{{$randomFirstName}}\");",
+							"let email1 = user1 + '@email.com';",
+							"",
+							"pm.collectionVariables.set('user1', user1);",
+							"pm.collectionVariables.set('user2', user2);",
+							"pm.collectionVariables.set('email_1', email1);",
+							"pm.collectionVariables.set('phone', '{{$randomPhoneNumber}}');",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{user1}}\",\n    \"first_name\": \"A\",\n    \"last_name\": \"M\",\n    \"email\": \"{{email_1}}\",\n    \"phone\": \"299-653-4964\",\n    \"is_superuser\": \"false\",\n    \"password\": \"w\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/user/register"
+			},
+			"response": []
+		},
+		{
+			"name": "http://{{BASE_URL}}/api/v1/user/me",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"message\", \"Please go to login and provide Login/Password\");",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-UserId",
+						"value": "1",
+						"type": "text"
+					},
+					{
+						"key": "X-username",
+						"value": "t",
+						"type": "text"
+					},
+					{
+						"key": "X-first-name",
+						"value": "s",
+						"type": "text"
+					},
+					{
+						"key": "X-last-name",
+						"value": "s",
+						"type": "text"
+					},
+					{
+						"key": "X-email",
+						"value": "a@b.com",
+						"type": "text"
+					},
+					{
+						"key": "X-phone",
+						"value": "+89045566778",
+						"type": "text"
+					}
+				],
+				"url": "http://{{BASE_URL}}/api/v1/user/me"
+			},
+			"response": []
+		},
+		{
+			"name": "http://{{BASE_URL}}/api/v1/login user1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.environment.set('token1', jsonData.access_token);",
+							"console.log(pm.environment.replaceIn('{{token1}}'));",
+							"",
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Value is a string and not empty\", function() {",
+							"    pm.response.to.have.jsonBody(\"token_type\", \"bearer\")",
+							"    pm.expect(jsonData.access_token).to.be.a('string').and.not.be.empty",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "{{user1}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "w",
+							"type": "text"
+						}
+					]
+				},
+				"url": "http://{{BASE_URL}}/api/v1/login"
+			},
+			"response": []
+		},
+		{
+			"name": "http://{{BASE_URL}}/api/v1/user/",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"user1 = pm.collectionVariables.get('user1')",
+							"pm.collectionVariables.set('email_1_new', user1 + '-new@email.com');"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// var jsonData = JSON.parse(responseBody);",
+							"// pm.collectionVariables.set('user1_id', jsonData.id);",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"username\", user1)",
+							"        .and.have.jsonBody(\"first_name\", \"A\")",
+							"        .and.have.jsonBody(\"last_name\", \"M\")",
+							"        .and.have.jsonBody(\"email\", pm.collectionVariables.get('email_1_new'))",
+							"        .and.have.jsonBody(\"phone\", \"299-653-4964\")",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{token1}}"
+					}
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{user1}}\",\n    \"email\": \"{{email_1_new}}\",\n    \"password\": \"w\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/user/{{user1_id}}"
+			},
+			"response": []
+		},
+		{
+			"name": "http://{{BASE_URL}}/api/v1/user/",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// collectionVariables",
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"username\", pm.collectionVariables.get(\"user1\"))",
+							"        .and.have.jsonBody(\"first_name\", \"A\")",
+							"        .and.have.jsonBody(\"last_name\", \"M\")",
+							"        .and.have.jsonBody(\"email\", pm.collectionVariables.get(\"email_1_new\"))",
+							"        .and.have.jsonBody(\"id\", pm.collectionVariables.get(\"user1_id\"));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{token1}}"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/user/{{user1_id}}"
+			},
+			"response": []
+		},
+		{
+			"name": "http://{{BASE_URL}}/api/v1/logout",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"access_token\", \"\")",
+							"        .and.have.jsonBody(\"token_type\", \"bearer\")",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{token1}}"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"url": "http://{{BASE_URL}}/api/v1/logout"
+			},
+			"response": []
+		},
+		{
+			"name": "http://{{BASE_URL}}/api/v1/user/register user2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"user2 = pm.collectionVariables.get(\"user2\")",
+							"pm.collectionVariables.set('email_2', user2 + '@email.com');",
+							"",
+							"// pm.test(\"Check message\", function() {",
+							"//     pm.response.to.have.jsonBody(\"username\", user2)",
+							"//         .and.have.jsonBody(\"first_name\", \"A\")",
+							"//         .and.have.jsonBody(\"last_name\", \"M\")",
+							"//         .and.have.jsonBody(\"email\", pm.collectionVariables.get(\"email_2\"))",
+							"//         .and.have.jsonBody(\"phone\", \"+12345678900\")",
+							"// });"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"username\", pm.collectionVariables.get('user2'))",
+							"        .and.have.jsonBody(\"first_name\", \"O\")",
+							"        .and.have.jsonBody(\"last_name\", \"G\")",
+							"        .and.have.jsonBody(\"email\", pm.collectionVariables.get('email_2'))",
+							"        .and.have.jsonBody(\"phone\", \"111-222-3333\")",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.collectionVariables.set('user2_id', jsonData.id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{user2}}\",\n    \"first_name\": \"O\",\n    \"last_name\": \"G\",\n    \"email\": \"{{email_2}}\",\n    \"phone\": \"111-222-3333\",\n    \"is_superuser\": \"false\",\n    \"password\": \"w\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/user/register"
+			},
+			"response": []
+		},
+		{
+			"name": "http://{{BASE_URL}}/api/v1/login user2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.environment.set('token2', jsonData.access_token);",
+							"console.log(pm.environment.replaceIn('{{token2}}'));",
+							"",
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Value is a string and not empty\", function() {",
+							"    pm.response.to.have.jsonBody(\"token_type\", \"bearer\")",
+							"    pm.expect(jsonData.access_token).to.be.a('string').and.not.be.empty",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "{{user2}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "w",
+							"type": "text"
+						}
+					]
+				},
+				"url": "http://{{BASE_URL}}/api/v1/login"
+			},
+			"response": []
+		},
+		{
+			"name": "http://{{BASE_URL}}/api/v1/user/{{user1_id}} user2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"detail\", \"The user doesn't have enough privileges\")",
+							"    }",
+							");",
+							"// var jsonData = JSON.parse(responseBody);",
+							"// pm.collectionVariables.set('user2_id', jsonData.id);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{token2}}"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "http://{{BASE_URL}}/api/v1/user/{{user1_id}}"
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "arch.homework"
+		},
+		{
+			"key": "email",
+			"value": ""
+		},
+		{
+			"key": "name",
+			"value": ""
+		},
+		{
+			"key": "phone",
+			"value": ""
+		},
+		{
+			"key": "user_1",
+			"value": ""
+		},
+		{
+			"key": "user_2",
+			"value": ""
+		},
+		{
+			"key": "user1",
+			"value": ""
+		},
+		{
+			"key": "user2",
+			"value": ""
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "email_1",
+			"value": ""
+		},
+		{
+			"key": "user1_id",
+			"value": ""
+		},
+		{
+			"key": "email_1_new",
+			"value": ""
+		},
+		{
+			"key": "email_2",
+			"value": ""
+		},
+		{
+			"key": "user2_id",
+			"value": ""
+		}
+	]
+}
