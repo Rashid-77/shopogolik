@@ -7,7 +7,8 @@ from pydantic_extra_types.phone_numbers import PhoneNumber
 
 # Shared properties
 class OrderBase(BaseModel):
-    user_id: int
+    uuid: Optional[UUID] = None
+    userId: int
     shipName: str
     shipAddr: str
     city: str
@@ -21,7 +22,7 @@ class OrderBase(BaseModel):
 
 # Properties to receive via API on creation
 class OrderCreate(OrderBase):
-    uuid: str # UUID
+    uuid: UUID
     amount: float
 
 
@@ -30,10 +31,10 @@ class OrderUpdate(OrderBase):
     amount: float
 
 
-class OrderUpdate(OrderBase):
-    shiped: Optional[bool] = Field(default=False)
-    shipDate: Optional[datetime]
-    trackinNumber: Optional[str]
+class OrderShip(OrderBase):
+    shiped: bool = Field(default=False)
+    shipDate: datetime
+    trackinNumber: str
 
 
 class OrderInDBBase(OrderBase):

@@ -1,0 +1,278 @@
+{
+	"info": {
+		"_postman_id": "22030b59-6b2d-4fbb-93a5-c45c750ea229",
+		"name": "microservice-06",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "12870437"
+	},
+	"item": [
+		{
+			"name": "http://{{BASE_URL}}/api/v1/user/register user1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"username\", pm.collectionVariables.get('user1'))",
+							"        .and.have.jsonBody(\"first_name\", \"A\")",
+							"        .and.have.jsonBody(\"last_name\", \"M\")",
+							"        .and.have.jsonBody(\"email\", pm.collectionVariables.get('email_1'))",
+							"        .and.have.jsonBody(\"phone\", \"299-653-4964\")",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.collectionVariables.set('user1_id', jsonData.id);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let user1 = pm.variables.replaceIn(\"{{$randomFirstName}}\");",
+							"let user2 = pm.variables.replaceIn(\"{{$randomFirstName}}\");",
+							"let email1 = user1 + '@email.com';",
+							"",
+							"pm.collectionVariables.set('user1', user1);",
+							"pm.collectionVariables.set('user2', user2);",
+							"pm.collectionVariables.set('email_1', email1);",
+							"pm.collectionVariables.set('phone', '{{$randomPhoneNumber}}');",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{user1}}\",\n    \"first_name\": \"A\",\n    \"last_name\": \"M\",\n    \"email\": \"{{email_1}}\",\n    \"phone\": \"299-653-4964\",\n    \"is_superuser\": \"false\",\n    \"password\": \"w\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/user/register"
+			},
+			"response": []
+		},
+		{
+			"name": "http://{{BASE_URL}}/api/v1/login user1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.environment.set('token1', jsonData.access_token);",
+							"console.log(pm.environment.replaceIn('{{token1}}'));",
+							"",
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Value is a string and not empty\", function() {",
+							"    pm.response.to.have.jsonBody(\"token_type\", \"bearer\")",
+							"    pm.expect(jsonData.access_token).to.be.a('string').and.not.be.empty",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "{{user1}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "w",
+							"type": "text"
+						}
+					]
+				},
+				"url": "http://{{BASE_URL}}/api/v1/login"
+			},
+			"response": []
+		},
+		{
+			"name": "http://{{BASE_URL}}/api/v1/order/create user1-order1",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let uuid1 = require('uuid')();",
+							"pm.collectionVariables.set('uuid1', uuid1)",
+							"console.log(uuid1);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"userId\", pm.collectionVariables.get('user1_id'))",
+							"        .and.have.jsonBody(\"shipName\", \"a\")",
+							"        .and.have.jsonBody(\"shipAddr\", \"b\")",
+							"        .and.have.jsonBody(\"city\", \"c\")",
+							"        .and.have.jsonBody(\"state\", \"d\")",
+							"        .and.have.jsonBody(\"zip\", \"e\")",
+							"        .and.have.jsonBody(\"country\", \"f\")",
+							"        .and.have.jsonBody(\"email\", pm.collectionVariables.get('email_1'))",
+							"        .and.have.jsonBody(\"phone\", \"111-222-33-44\")",
+							"        .and.have.jsonBody(\"tax\", 1.0)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{token1}}"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uuid\": \"{{uuid1}}\",\n    \"userId\": \"{{user1_id}}\",\n    \"amount\": \"1\",\n    \"shipName\": \"a\",\n    \"shipAddr\": \"b\",\n    \"city\": \"c\",\n    \"state\": \"d\",\n    \"zip\": \"e\",\n    \"country\": \"f\",\n    \"email\": \"{{email_1}}\",\n    \"phone\": \"111-222-33-44\",\n    \"tax\": \"1\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/order/create"
+			},
+			"response": []
+		},
+		{
+			"name": "http://{{BASE_URL}}/api/v1/order/create user1-order1 check-idempotency",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let uuid1 = pm.collectionVariables.get('uuid1');",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"detail\", \"A order with same uuid already exists.\")",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{token1}}"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uuid\": \"{{uuid1}}\",\n    \"userId\": \"{{user1_id}}\",\n    \"amount\": \"1\",\n    \"shipName\": \"a\",\n    \"shipAddr\": \"b\",\n    \"city\": \"c\",\n    \"state\": \"d\",\n    \"zip\": \"e\",\n    \"country\": \"f\",\n    \"email\": \"g\",\n    \"phone\": \"111-222-33-44\",\n    \"tax\": \"1\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/order/create"
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "arch.homework"
+		},
+		{
+			"key": "user1",
+			"value": ""
+		},
+		{
+			"key": "user2",
+			"value": ""
+		},
+		{
+			"key": "email_1",
+			"value": ""
+		},
+		{
+			"key": "phone",
+			"value": ""
+		},
+		{
+			"key": "user1_id",
+			"value": ""
+		},
+		{
+			"key": "uuid1",
+			"value": ""
+		}
+	]
+}

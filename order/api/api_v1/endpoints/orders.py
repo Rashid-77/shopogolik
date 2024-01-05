@@ -18,28 +18,21 @@ REQUEST_TIME_BACKET = Histogram('request_latency_seconds', 'Time spent processin
 @router.post("/create", response_model=schemas.Order)
 @REQUEST_TIME_BACKET.labels(endpoint='/order').time()
 def create_order(
-    # *,
     order_in: schemas.OrderCreate,
     db: Session = Depends(deps.get_db),
-    # current_user: models.User = Depends(deps.get_current_active_user),
+    current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Create new order.
     """
-    logger.info("create_order()")
-    # order = crud.order.is_order_exists(db, uuid=order_in.uuid)
-    order = None
+    order = crud.order.is_order_exists(db, uuid=order_in.uuid)
     logger.info(f"{order=}")
     if order:
         raise HTTPException(
             status_code=400,
             detail="A order with same uuid already exists.",
         )
-    logger.info(f"creation")
-    order = crud.order.create(db, obj_in=order_in, user_id=1)
-    logger.info(f"{order=}")
-    return order
-    # return crud.order.create(db, obj_in=order_in, user_id=current_user.id)
+    return crud.order.create(db, obj_in=order_in, user_id=current_user.id)
 
 
 @router.get("/{order_uuid}", response_model=schemas.Order)

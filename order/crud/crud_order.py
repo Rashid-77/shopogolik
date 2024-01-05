@@ -1,14 +1,11 @@
 from typing import Any, Optional, Dict, Union
 from uuid import UUID
-
+from datetime import datetime
 from sqlalchemy.orm import Session
 
 from crud.base import CRUDBase
 from models.order import Order
 from schemas.order import OrderCreate, OrderUpdate
-
-from .base import ModelType
-from logger import logger
 
 
 class CRUDOrder(CRUDBase[Order, OrderCreate, OrderUpdate]):
@@ -18,7 +15,9 @@ class CRUDOrder(CRUDBase[Order, OrderCreate, OrderUpdate]):
 
     def create(self, db: Session, *, obj_in: OrderCreate, user_id) -> Order:
         db_obj = Order(
+            uuid = obj_in.uuid,
             userId = user_id,
+            amount = obj_in.amount,
             shipName = obj_in.shipName,
             shipAddr = obj_in.shipAddr,
             city = obj_in.city,
@@ -29,16 +28,12 @@ class CRUDOrder(CRUDBase[Order, OrderCreate, OrderUpdate]):
             phone = obj_in.phone,
             tax = obj_in.tax,
             shiped = False,
-            shipDate = 0,
+            shipDate = None,
             trackinNumber = ""
         )
-        logger.info(f"{db_obj=}")
         db.add(db_obj)
-        logger.info("add")
         db.commit()
-        logger.info("commit")
         db.refresh(db_obj)
-        logger.info("refresh")
         return db_obj
 
     def update(

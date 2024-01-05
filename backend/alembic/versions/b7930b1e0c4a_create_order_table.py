@@ -38,7 +38,6 @@ def upgrade() -> None:
         sa.Column("shipDate", sa.DateTime(), nullable=True),
         sa.Column("trackinNumber", sa.String(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
-        sa.PrimaryKeyConstraint("uuid"),
     )
     op.create_index(op.f("ix_order_id"), "order", ["id"], unique=True)
     op.create_index(op.f("ix_order_uuid"), "order", ["uuid"], unique=True)
