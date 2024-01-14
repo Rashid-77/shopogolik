@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  labels:
+    name: order-shopogolik-cm
+  name: order-shopogolik-cm
+data:
+  db_name: "shopgolik_db"
