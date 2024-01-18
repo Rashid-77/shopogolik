@@ -1,10 +1,10 @@
-server:
+productServer:
   replicaCount: 1
   image:
-    repository: rash77/shopogolik:v1.9.1
+    repository: rash77/shopogolik-product:v0.0.1
     pullPolicy: Always
   port: 8000
-  portName: shopsvc
+  portName: product-shopsvc
   targetPort: 8000
   host: arch.homework
   autoscaling:
@@ -14,9 +14,7 @@ server:
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
 
-
 db:
-
   port: 5432
 
 resources: {}
