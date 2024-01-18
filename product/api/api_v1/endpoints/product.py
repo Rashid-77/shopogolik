@@ -12,7 +12,7 @@ from logger import logger
 
 router = APIRouter()
 
-REQUEST_TIME_BACKET = Histogram('request_latency_seconds', 'Time spent processing request', ['endpoint'])
+REQUEST_TIME_BACKET = Histogram('product_request_latency_seconds', 'Time spent processing request', ['endpoint'])
 
 
 @router.post("/add", response_model=schemas.Product)

@@ -12,6 +12,8 @@ spec:
   - host: {{ .Values.productServer.host }}
     http:
       paths:
+      
+      # product section
       - backend:
           service:
             name: {{ .Release.Name}}
@@ -32,4 +34,20 @@ spec:
             port:
               number: {{ .Values.productServer.port }}
         path: /api/v1/product/
+        pathType: Prefix
+      
+      # stock section
+      - backend:
+          service:
+            name: {{ .Release.Name}}
+            port:
+              number: {{ .Values.productServer.port }}
+        path: /api/v1/stock/product/add
+        pathType: Exact
+      - backend:
+          service:
+            name: {{ .Release.Name}}
+            port:
+              number: {{ .Values.productServer.port }}
+        path: /api/v1/stock/product/
         pathType: Prefix
