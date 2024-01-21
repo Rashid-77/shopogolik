@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  creationTimestamp: null
+  labels:
+    name: {{ .Values.kafka.name }}-job-product
+  name: {{ .Values.kafka.name }}-job-product
+
+spec:
+  activeDeadlineSeconds: 240
+  ttlSecondsAfterFinished: 120
+  template:
+    spec:
+      containers:
+      - image: {{ .Values.kafka.image }}
+        imagePullPolicy: {{ .Values.kafka.pullPolicy }}
+        name: {{ .Values.kafka.name }}-job-product
+        resources: {}
+        command: ["/bin/sh", 
+                  "-c", 
+                  "/bin/kafka-topics --bootstrap-server kafka-service:9092 --create --topic product"]
+      dnsPolicy: ClusterFirst
+      restartPolicy: OnFailure
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+
+---
