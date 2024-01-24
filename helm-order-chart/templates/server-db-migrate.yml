@@ -1,21 +1,15 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
   creationTimestamp: null
   labels:
-    name: {{ .Release.Name }}
-  name: {{ .Release.Name }}
+    name: {{ .Release.Name}}-job
+  name: {{ .Release.Name}}-job
+
 spec:
-  progressDeadlineSeconds: 2147483647
-  replicas: {{ .Values.orderServer.replicaCount }}
-  selector:
-    matchLabels:
-      app: {{ .Release.Name }}
+  activeDeadlineSeconds: 240
+  ttlSecondsAfterFinished: 120
   template:
-    metadata:
-      creationTimestamp: null
-      labels:
-        app: {{ .Release.Name }}
     spec:
       containers:
       - env:
@@ -24,7 +18,7 @@ spec:
         - name: POSTGRES_HOST
           value: {{ .Values.db.name }}
         - name: POSTGRES_PORT
-          value: {{ .Values.db.port | quote }}
+          value: {{ .Values.db.port | quote}}
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
@@ -45,21 +39,15 @@ spec:
             secretKeyRef:
               name: order-server-credentials
               key: superuser_pwd
-
+              
         image: {{ .Values.orderServer.image.repository }}
         imagePullPolicy: {{ .Values.orderServer.image.pullPolicy }}
-        name: {{ .Release.Name }}
-        ports:
-        - name: {{ .Values.orderServer.portName }}
-          containerPort: {{ .Values.orderServer.port }}
+        name: {{ .Release.Name}}-job
         resources: {}
-          # limits:
-          #   memory: 2Gi
-          #   cpu: "1"
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
+        command: ["/bin/sh"]
+        args: ["/code/create_tables_and_superuser.sh"]
       dnsPolicy: ClusterFirst
-      restartPolicy: Always
+      restartPolicy: OnFailure
       schedulerName: default-scheduler
       securityContext: {}
       terminationGracePeriodSeconds: 30

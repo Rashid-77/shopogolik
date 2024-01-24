@@ -1,24 +1,8 @@
-orderServer:
-  replicaCount: 1
-  image:
-    repository: rash77/shopogolik-order:v0.0.2
-    pullPolicy: Always
-  port: 8000
-  portName: order-shopsvc
-  targetPort: 8000
-  host: arch.homework
-  autoscaling:
-    enabled: false
-    minReplicas: 1
-    maxReplicas: 100
-    targetCPUUtilizationPercentage: 80
-    # targetMemoryUtilizationPercentage: 80
 
 db:
   port: 5432
   replicaCount: 1
   name: postgres-order
-  dbName: order_db
   mountPath: /var/lib/postgresql/data
   image:
     repository: bitnami/postgresql
