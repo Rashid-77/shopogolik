@@ -6,6 +6,7 @@ from db import Base
 
 class Order(Base):
     id = Column(Integer, primary_key=True)
+    uuid = Column(Uuid)
     userId = Column(Integer)
     amount = Column(Float)
     shipName = Column(String)

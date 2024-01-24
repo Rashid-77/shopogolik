@@ -1,4 +1,5 @@
 from typing import Any
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from prometheus_client import Histogram
@@ -24,20 +25,20 @@ def create_order(
     """
     Create new order.
     """
-    order = crud.order.is_order_exists(db, id=order_in.id)
+    order = crud.order.is_order_exists(db, uuid=order_in.uuid)
     logger.info(f"{order=}")
     if order:
         raise HTTPException(
             status_code=400,
-            detail="A order with same id already exists.",
+            detail="A order with same uuid already exists.",
         )
     return crud.order.create(db, obj_in=order_in, user_id=current_user.id)
 
 
-@router.get("/{order_id}", response_model=schemas.Order)
+@router.get("/{order_uuid}", response_model=schemas.Order)
 @REQUEST_TIME_BACKET.labels(endpoint='/order').time()
 def read_order_by_id(
-    order_id: int,
+    order_uuid: UUID,
     current_user: models.User = Depends(deps.get_current_active_user),
     db: Session = Depends(deps.get_db),
 ) -> Any:
@@ -45,7 +46,7 @@ def read_order_by_id(
     Get order by id.
     """
     logger.info("read_order_by_id()")
-    order = crud.order.get(db, id=order_id)
+    order = crud.order.get(db, uuid=order_uuid)
     if not order:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
     if order.userId == current_user.id or current_user.is_superuser:
@@ -53,12 +54,12 @@ def read_order_by_id(
     raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
 
 
-@router.put("/{order_id}", response_model=schemas.Order)
+@router.put("/{order_uuid}", response_model=schemas.Order)
 @REQUEST_TIME_BACKET.labels(endpoint='/order').time()
 def update_order(
     *,
     db: Session = Depends(deps.get_db),
-    order_id: int,
+    order_uuid: UUID,
     order_in: schemas.OrderUpdate,
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
@@ -66,7 +67,7 @@ def update_order(
     Update order.
     """
     logger.info("update_order()")
-    order = crud.order.get(db, id=order_id)
+    order = crud.order.get(db, uuid=order_uuid)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     if order.userId == current_user.id or current_user.is_superuser:
@@ -75,18 +76,18 @@ def update_order(
     raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
 
 
-@router.delete("/{order_id}", response_model=schemas.Order)
+@router.delete("/{order_uuid}", response_model=schemas.Order)
 @REQUEST_TIME_BACKET.labels(endpoint='/order').time()
 def delete_user(
     *,
     db: Session = Depends(deps.get_db),
-    order_id: int,
+    order_uuid: UUID,
 ) -> Any:
     """
     Delete order.
     """
     logger.info("delete_user()")
-    order = crud.order.remove(db, id=order_id)
+    order = crud.order.remove(db, id=order_uuid)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
