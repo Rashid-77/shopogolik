@@ -7,7 +7,6 @@ from pydantic_extra_types.phone_numbers import PhoneNumber
 
 # Shared properties
 class OrderBase(BaseModel):
-    uuid: Optional[UUID] = None
     userId: int
     shipName: str
     shipAddr: str
@@ -22,7 +21,6 @@ class OrderBase(BaseModel):
 
 # Properties to receive via API on creation
 class OrderCreate(OrderBase):
-    uuid: UUID
     amount: float
 
 

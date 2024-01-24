@@ -1,6 +1,4 @@
 from typing import Any, Optional, Dict, Union
-from uuid import UUID
-from datetime import datetime
 from sqlalchemy.orm import Session
 
 from crud.base import CRUDBase
@@ -10,12 +8,11 @@ from schemas.order import OrderCreate, OrderUpdate
 
 class CRUDOrder(CRUDBase[Order, OrderCreate, OrderUpdate]):
 
-    def get(self, db: Session, uuid: UUID) -> Optional[Order]:
-        return db.query(self.model).filter(self.model.uuid == uuid).first()
+    def get(self, db: Session, id: int) -> Optional[Order]:
+        return db.query(self.model).filter(self.model.id == id).first()
 
     def create(self, db: Session, *, obj_in: OrderCreate, user_id) -> Order:
         db_obj = Order(
-            uuid = obj_in.uuid,
             userId = user_id,
             amount = obj_in.amount,
             shipName = obj_in.shipName,
@@ -45,8 +42,8 @@ class CRUDOrder(CRUDBase[Order, OrderCreate, OrderUpdate]):
             update_data = obj_in.model_dump(exclude_unset=True)
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
-    def is_order_exists(self, db: Session, *, uuid: UUID) -> Optional[Order]:
-        return db.query(Order).filter(Order.uuid == uuid).first()
+    def is_order_exists(self, db: Session, *, id: int) -> Optional[Order]:
+        return db.query(Order).filter(Order.id == id).first()
 
 
 order = CRUDOrder(Order)
