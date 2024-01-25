@@ -45,6 +45,10 @@ spec:
             secretKeyRef:
               name: order-server-credentials
               key: superuser_pwd
+        - name: BROKER_HOST
+          value: kafka-service
+        - name: BROKER_PORT
+          value: "9092"
 
         image: {{ .Values.orderServer.image.repository }}
         imagePullPolicy: {{ .Values.orderServer.image.pullPolicy }}

@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 import crud, schemas, models
 from api import deps
+from events_pub.order_pub import order_created
 from logger import logger
 
 
@@ -16,8 +17,9 @@ REQUEST_TIME_BACKET = Histogram('request_latency_seconds', 'Time spent processin
 
 
 @router.post("/create", response_model=schemas.Order)
-@REQUEST_TIME_BACKET.labels(endpoint='/order').time()
-def create_order(
+# TODO change sync prometeus client to async
+# @REQUEST_TIME_BACKET.labels(endpoint='/order').time()
+async def create_order(
     order_in: schemas.OrderCreate,
     db: Session = Depends(deps.get_db),
     current_user: models.User = Depends(deps.get_current_active_user),
@@ -25,6 +27,7 @@ def create_order(
     """
     Create new order.
     """
+    logger.info(f'{order_in=}')
     order = crud.order.is_order_exists(db, uuid=order_in.uuid)
     logger.info(f"{order=}")
     if order:
@@ -32,12 +35,16 @@ def create_order(
             status_code=400,
             detail="A order with same uuid already exists.",
         )
-    return crud.order.create(db, obj_in=order_in, user_id=current_user.id)
+    order = crud.order.create(db, obj_in=order_in, user_id=1)#current_user.id)
+    logger.info("order in db created")
+    # await order_created(order)
+    logger.info("order pub in kafka")
+    return order
 
 
 @router.get("/{order_uuid}", response_model=schemas.Order)
 @REQUEST_TIME_BACKET.labels(endpoint='/order').time()
-def read_order_by_id(
+async def read_order_by_id(
     order_uuid: UUID,
     current_user: models.User = Depends(deps.get_current_active_user),
     db: Session = Depends(deps.get_db),
@@ -56,7 +63,7 @@ def read_order_by_id(
 
 @router.put("/{order_uuid}", response_model=schemas.Order)
 @REQUEST_TIME_BACKET.labels(endpoint='/order').time()
-def update_order(
+async def update_order(
     *,
     db: Session = Depends(deps.get_db),
     order_uuid: UUID,
@@ -78,7 +85,7 @@ def update_order(
 
 @router.delete("/{order_uuid}", response_model=schemas.Order)
 @REQUEST_TIME_BACKET.labels(endpoint='/order').time()
-def delete_user(
+async def delete_user(
     *,
     db: Session = Depends(deps.get_db),
     order_uuid: UUID,

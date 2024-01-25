@@ -3,11 +3,14 @@ from fastapi import Request
 from fastapi.exceptions import RequestValidationError
 from prometheus_client import make_asgi_app
 from starlette.exceptions import HTTPException
+from contextlib import asynccontextmanager
 
 from api.api_v1.api import api_router
 from exception_handlers import request_validation_exception_handler, http_exception_handler, unhandled_exception_handler
 from middleware import log_request_middleware
 from utils import get_settings
+from events_sub.order_sub import basic_consume_loop, tick
+import asyncio
 
 import logging
 logging.basicConfig(
@@ -18,7 +21,13 @@ logging.basicConfig(
     
 logger = logging.getLogger(__name__)
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    asyncio.create_task(basic_consume_loop())
+    # asyncio.create_task(tick())
+    yield
+
+app = FastAPI(lifespan=lifespan)
 app.include_router(api_router, prefix=get_settings().API_V1_STR)
 
 metrics_app = make_asgi_app()

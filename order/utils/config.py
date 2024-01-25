@@ -19,6 +19,9 @@ class Settings(BaseSettings):
 
     secret: str = os.getenv("SECRET", "")
 
+    broker_host: str = os.getenv("BROKER_HOST", "")
+    broker_port: str = os.getenv("BROKER_PORT", "")
+    broker_url: str = f"{broker_host}:{broker_port}"
 
 # TODO Make this settings a global object
 def get_settings():
