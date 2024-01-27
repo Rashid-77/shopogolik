@@ -1,10 +1,8 @@
 from datetime import datetime
 from decimal import *
 from typing import Optional
-from uuid import UUID
 
-from pydantic import BaseModel, Field, NameEmail
-from pydantic_extra_types.phone_numbers import PhoneNumber
+from pydantic import BaseModel
 
 # Shared properties
 class ProductBase(BaseModel):
