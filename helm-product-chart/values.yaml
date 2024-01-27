@@ -14,8 +14,25 @@ productServer:
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
 
+productSub:
+  replicaCount: 1
+  image:
+    repository: rash77/shopogolik-product-sub:v0.0.1
+    pullPolicy: Always
+
 db:
   port: 5432
+  replicaCount: 1
+  name: postgres-order
+  dbName: order_db
+  mountPath: /var/lib/postgresql/data
+  image:
+    repository: bitnami/postgresql
+    pullPolicy: Always
+
+broker:
+  host: kafka-service
+  port: 9092
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
