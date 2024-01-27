@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 import crud, schemas, models
 from api import deps
-from events_pub.order_pub import order_created
+from events_pub.order_pub import publish_order_created
 from logger import logger
 
 
@@ -27,17 +27,14 @@ async def create_order(
     """
     Create new order.
     """
-    logger.info(f'{order_in=}')
     order = crud.order.is_order_exists(db, uuid=order_in.uuid)
-    logger.info(f"{order=}")
     if order:
         raise HTTPException(
             status_code=400,
             detail="A order with same uuid already exists.",
         )
     order = crud.order.create(db, obj_in=order_in, user_id=1)#current_user.id)
-    logger.info("order in db created")
-    # await order_created(order)
+    publish_order_created(order)
     logger.info("order pub in kafka")
     return order
 

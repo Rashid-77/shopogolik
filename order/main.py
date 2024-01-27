@@ -9,23 +9,15 @@ from api.api_v1.api import api_router
 from exception_handlers import request_validation_exception_handler, http_exception_handler, unhandled_exception_handler
 from middleware import log_request_middleware
 from utils import get_settings
-from events_sub.order_sub import basic_consume_loop, tick
-import asyncio
-
-import logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="[%(asctime)s] %(levelname).1s %(message)s",
-    datefmt="%Y.%m.%d %H:%M:%S",
-)
-    
-logger = logging.getLogger(__name__)
+from utils.log import get_console_logger
+   
+logger = get_console_logger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    asyncio.create_task(basic_consume_loop())
-    # asyncio.create_task(tick())
+    # TODO initialize
     yield
+    # TODO close connections
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(api_router, prefix=get_settings().API_V1_STR)
