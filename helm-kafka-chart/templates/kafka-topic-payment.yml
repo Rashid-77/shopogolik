@@ -18,6 +18,7 @@ spec:
         resources: {}
         command: ["/bin/sh", 
                   "-c", 
+                  "sleep 30", 
                   "/bin/kafka-topics --bootstrap-server kafka-service:9092 --create --topic payment"]
       dnsPolicy: ClusterFirst
       restartPolicy: OnFailure
