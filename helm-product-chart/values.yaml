@@ -23,8 +23,8 @@ productSub:
 db:
   port: 5432
   replicaCount: 1
-  name: postgres-order
-  dbName: order_db
+  host: postgr-product
+  dbName: product_db
   mountPath: /var/lib/postgresql/data
   image:
     repository: bitnami/postgresql

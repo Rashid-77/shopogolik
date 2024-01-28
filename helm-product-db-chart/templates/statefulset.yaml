@@ -35,7 +35,7 @@ spec:
             - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
-                  name: order-cm
+                  name: product-cm
                   key: db_name
           ports:
             - containerPort: {{ .Values.db.port }}

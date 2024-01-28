@@ -2,7 +2,6 @@
 db:
   port: 5432
   replicaCount: 1
-  name: postgres-product
   mountPath: /var/lib/postgresql/data
   image:
     repository: bitnami/postgresql
