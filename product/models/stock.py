@@ -17,6 +17,7 @@ class Stock(Base):
         default=None
         )
     amount = Column(Integer)
+    reserved = Column(Integer)
 
 
 class ProductState(enum.Enum):
@@ -37,5 +38,6 @@ class StockProdReservation(Base):
     id = Column(Integer, primary_key=True)
     order_id = Column(Integer)
     prod_id = Column(Integer)
+    amount = Column(Integer)
     updDate = Column(Date)
-    prod_state = Column(Enum(ProductState), default=0)
+    state = Column(Enum(ProductState), default=0)
