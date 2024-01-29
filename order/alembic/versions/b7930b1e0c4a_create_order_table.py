@@ -27,6 +27,10 @@ def upgrade() -> None:
         sa.Column("goods_reserved", sa.Boolean(), nullable=True),
         sa.Column("money_reserved", sa.Boolean(), nullable=True),
         sa.Column("courier_reserved", sa.Boolean(), nullable=True),
+        sa.Column("reserv_user_canceled", sa.Boolean(), nullable=True),
+        sa.Column("goods_fail", sa.Boolean(), nullable=True),
+        sa.Column("money_fail", sa.Boolean(), nullable=True),
+        sa.Column("courier_fail", sa.Boolean(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_order_id"), "order", ["id"], unique=True)

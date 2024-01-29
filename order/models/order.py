@@ -11,3 +11,7 @@ class Order(Base):
     goods_reserved = Column(Boolean, default=False)
     money_reserved = Column(Boolean, default=False)
     courier_reserved = Column(Boolean, default=False)
+    reserv_user_canceled = Column(Boolean, default=False)
+    goods_fail = Column(Boolean, default=False)
+    money_fail = Column(Boolean, default=False)
+    courier_fail = Column(Boolean, default=False)

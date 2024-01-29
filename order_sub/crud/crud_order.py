@@ -17,9 +17,12 @@ class CRUDOrder(CRUDBase[Order, OrderCreate, OrderUpdate]):
         db_obj = Order(
             uuid = obj_in.uuid,
             userId = user_id,
-            goods_reserved = obj_in.goods_reserved,
-            money_reserved = obj_in.money_reserved,
-            courier_reserved = obj_in.courier_reserved,
+            # goods_reserved = False,
+            # money_reserved = False,
+            # courier_reserved = False,
+            # goods_fail = False,
+            # money_fail = False,
+            # courier_fail = False,
         )
         db.add(db_obj)
         db.commit()

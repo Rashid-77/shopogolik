@@ -11,6 +11,10 @@ class OrderBase(BaseModel):
     goods_reserved: bool = Field(default=False)
     money_reserved: bool = Field(default=False)
     courier_reserved: bool = Field(default=False)
+    reserv_user_canceled: bool = Field(default=False)
+    goods_fail: bool = Field(default=False)
+    money_fail: bool = Field(default=False)
+    courier_fail: bool = Field(default=False)
 
 
 # Properties to receive via API on creation

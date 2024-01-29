@@ -2,14 +2,16 @@ from decimal import *
 import json
 
 from confluent_kafka import Producer, Consumer, KafkaException, KafkaError
-
-from db.utils import get_db
+from crud.crud_pub_event import pub_event
+from crud.crud_sub_event import sub_event
+from schemas.sub_event import SubEventCreate
 from crud import order
 from models import Order
 from schemas.order import OrderUpdate
 from utils import get_settings
 from utils.log import get_console_logger
 from db.session import SessionLocal
+from events_sub.utils import delivery_report
 
 CONSUMER_GROUP = 'order_group'
 
@@ -19,45 +21,46 @@ logger.info("Order_sub started")
 
 kafka_url = get_settings().broker_url
 p = Producer({'bootstrap.servers': kafka_url})
-# db = get_db()
 db = SessionLocal()
 
-def delivery_report(err, msg):
-    """ Called once for each message produced to indicate delivery result.
-        Triggered by poll() or flush(). """
-    if err is not None:
-        logger.error(f'Message delivery failed: {err}')
-    else:
-        logger.info(f'Message delivered to {msg.topic()} [{msg.partition()}]')
+def send_message(topic, msg):
+    try:
+        logger.info(f'  new_{msg=}')
+        p.produce(topic, json.dumps(msg), callback=delivery_report)
+        p.flush()
+    except Exception as e:
+        logger.error(e)
 
 
-prod_events = []
+# prod_events = []
 
 def dispatch_msgs(msg):
     val = json.loads(msg.value())
-    prod_ev_id = val.get("prod_ev_id")
-    logger.info(f'{prod_ev_id=}, {prod_events=}')
 
-    if prod_ev_id in prod_events:
+    sub_ev = sub_event.get_by_event_id(db, val.get("id"))
+    if sub_ev is not None:
         logger.warn("This is duplicate. Ignored")
         return
-    prod_events.append(val.get("order_ev_id"))
+    sub_ev = sub_event.create(db, obj_in=SubEventCreate(event_id=val.get("id")))
+    # TODO here insert event state 1 of buisness logic
 
     if val.get("name") == "product":
         at_least_one_reserved = False
         for prod in val.get("reserved"):
-            logger.info(f'{prod}')
             if prod.get("amount") > 0:
                 at_least_one_reserved = True
                 break
+        o: Order = order.get(db, val.get("order_uuid"))
         if at_least_one_reserved:
-            # set order.goods_reserved to True
-            o: Order = order.get(db, val.get("order_uuid"))
-            logger.info(f'{o=}')
             upd = {"goods_reserved": True}
-            logger.info(f'{upd=}')
             updated = order.update(db, db_obj=o, obj_in=upd)
-            logger.info(f'{updated=}')
+        else:
+            upd = {"goods_fail": False}
+            updated = order.update(db, db_obj=o, obj_in=upd)
+            logger.info(f'call here order canceling')
+            # cancel order
+        logger.info(f'{updated=}')
+        # TODO here insert event state 2 of buisness logic
     elif val.get("name") == "payment":
         pass
     elif val.get("name") == "logistic":
@@ -76,7 +79,7 @@ def main_consume_loop():
         c.subscribe(['product'])
         while True:
             # TODO change to poll consume to the batch consume in the future
-            msg = c.poll(3)
+            msg = c.poll(0.5)
 
             if msg is None: 
                 continue

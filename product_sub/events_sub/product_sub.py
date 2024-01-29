@@ -1,18 +1,24 @@
-from decimal import *
+# from decimal import *
 import json
 
 from confluent_kafka import Producer, Consumer, KafkaException, KafkaError
+from crud.crud_pub_event import pub_event
+from crud.crud_sub_event import sub_event
+from schemas.sub_event import SubEventCreate
 from utils import get_settings
 from utils.log import get_console_logger
+from db.session import SessionLocal
+from events_sub.utils import delivery_report
 
-PRODUCT_GROUP = 'product_group'
+CONSUMER_GROUP = 'product_group'
 
 
 logger = get_console_logger(__name__)
-logger.info("Product started")
+logger.info("Product_sub started")
 
 kafka_url = get_settings().broker_url
 p = Producer({'bootstrap.servers': kafka_url})
+db = SessionLocal()
 
 # In memory stock data for dev
 stock = [
@@ -42,51 +48,33 @@ def reserve_prod(prod_id, amount):
     return amount_now
 
 
-def delivery_report(err, msg):
-    """ Called once for each message produced to indicate delivery result.
-        Triggered by poll() or flush(). """
-    if err is not None:
-        logger.error(f'Message delivery failed: {err}')
-    else:
-        logger.info(f'Message delivered to {msg.topic()} [{msg.partition()}]')
-
-
-# TODO put it in DB
-# id for idempotency
-prod_ev_id: int = 0
-order_events = []
-
-
 def dispatch_msgs(msg):
-    global prod_ev_id
     val = json.loads(msg.value())
-    order_ev_id = val.get("order_ev_id")
-    # logger.info(f'{order_ev_id=}, {prod_req=}')
-
-    if order_ev_id in order_events:
-        logger.warn("This is duplicate. Ignored")
-        return
-    order_events.append(val.get("order_ev_id"))
 
     if val.get("name") == "order":
+        sub_ev = sub_event.get_by_event_id(db, val.get("id"))
+        if sub_ev is not None:
+            logger.warn("This is duplicate. Ignored")
+            return
         prod_msg = {
             "name" : "product", 
             "order_uuid": val.get("order_uuid"), 
             "reserved": [],
-            "prod_ev_id": prod_ev_id, 
         }
+        # TODO here insert event state 1 of buisness logic
         for prod in val.get("products"):
             prod_id, amount = prod.get("prod_id"), prod.get("amount")
-            # logger.info(f'before reserve: {prod_id=}, {amount=}, Stock: {stock[prod_id].get("amount")}')
             res_amount = reserve_prod(prod_id, amount)
             prod_msg["reserved"].append({"prod_id":prod_id, "amount": res_amount})
-            # logger.info(f'after  reserve: {prod_id=}, {res_amount=}, Stock: {stock[prod_id].get("amount")}')
-        
+
+        sub_ev = sub_event.create(db, obj_in=SubEventCreate(event_id=val.get("id")))
+        # TODO here insert event state 2 of buisness logic
+        pub_ev  = pub_event.create(db, obj_in=None)
+        prod_msg["id"] = pub_ev.id
         try:
-            logger.info(f'  new_{prod_msg=}')
             p.produce('product', json.dumps(prod_msg), callback=delivery_report)
             p.flush()
-            prod_ev_id += 1
+            # TODO here insert event state 3 of buisness logic
         except Exception as e:
             logger.error(e)
 
@@ -96,7 +84,7 @@ def main_consume_loop():
     try:
         c = Consumer({
             'bootstrap.servers': kafka_url,
-            'group.id': PRODUCT_GROUP,
+            'group.id': CONSUMER_GROUP,
             'auto.offset.reset': 'earliest'
         })
 
