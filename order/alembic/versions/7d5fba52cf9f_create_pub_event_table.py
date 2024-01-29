@@ -36,4 +36,4 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.drop_index(op.f("ix_pub_event_id"), table_name="pubevent")
-    op.drop_table("pub_event")
+    op.drop_table("pubevent")
