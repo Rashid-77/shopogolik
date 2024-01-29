@@ -23,6 +23,10 @@ def upgrade() -> None:
         "subevent",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("event_id", sa.Integer(), nullable=False),
+        sa.Column("updDate", 
+                  sa.DateTime(timezone=True), 
+                  server_default=sa.text("now()"), 
+                  nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_sub_event_id"), "subevent", ["id"], unique=True)

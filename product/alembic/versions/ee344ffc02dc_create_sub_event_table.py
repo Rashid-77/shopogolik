@@ -27,8 +27,6 @@ def upgrade() -> None:
                   sa.DateTime(timezone=True), 
                   server_default=sa.text("now()"), 
                   nullable=True),
-        sa.Column("delivered", sa.Boolean(), nullable=True),
-        sa.Column("deliv_fail", sa.Boolean(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_sub_event_id"), "subevent", ["id"], unique=True)

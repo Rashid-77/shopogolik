@@ -4,23 +4,24 @@ from pydantic import BaseModel
 
 
 # Shared properties
-class SubEventBase(BaseModel):
-    event_id: Optional[int] = None
+class PubEventBase(BaseModel):
+    delivered: Optional[bool] = False
+    deliv_fail: Optional[bool] = False
 
 
 # Properties to receive via API on creation
-class SubEventCreate(SubEventBase):
-    event_id: int
-
-
-# Properties to receive via API on update
-class SubEventUpdate(SubEventBase):
+class PubEventCreate(PubEventBase):
     pass
 
 
-class SubEventInDBBase(SubEventBase):
+# Properties to receive via API on update
+class PubEventUpdate(PubEventBase):
+    delivered: bool
+    deliv_fail: bool
+
+
+class PubEventInDBBase(PubEventBase):
     id: Optional[int] = None
-    event_id: Optional[int] = None
     updDate : Optional[datetime] = None
 
     # class Config:
@@ -28,5 +29,5 @@ class SubEventInDBBase(SubEventBase):
 
 
 # Additional properties to return via API
-class SubEvent(SubEventInDBBase):
+class PubEvent(PubEventInDBBase):
     pass
