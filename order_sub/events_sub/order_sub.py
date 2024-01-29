@@ -11,7 +11,7 @@ from schemas.order import OrderUpdate
 from utils import get_settings
 from utils.log import get_console_logger
 from db.session import SessionLocal
-from events_sub.utils import delivery_report
+from events_sub.utils import send_message
 
 CONSUMER_GROUP = 'order_group'
 
@@ -23,16 +23,6 @@ kafka_url = get_settings().broker_url
 p = Producer({'bootstrap.servers': kafka_url})
 db = SessionLocal()
 
-def send_message(topic, msg):
-    try:
-        logger.info(f'  new_{msg=}')
-        p.produce(topic, json.dumps(msg), callback=delivery_report)
-        p.flush()
-    except Exception as e:
-        logger.error(e)
-
-
-# prod_events = []
 
 def dispatch_msgs(msg):
     val = json.loads(msg.value())
@@ -46,20 +36,26 @@ def dispatch_msgs(msg):
 
     if val.get("name") == "product":
         at_least_one_reserved = False
-        for prod in val.get("reserved"):
+        for prod in val.get("reserved", []):
             if prod.get("amount") > 0:
                 at_least_one_reserved = True
                 break
         o: Order = order.get(db, val.get("order_uuid"))
         if at_least_one_reserved:
-            upd = {"goods_reserved": True}
-            updated = order.update(db, db_obj=o, obj_in=upd)
+            order.update(db, db_obj=o, obj_in={"goods_reserved": True})
+            logger.info(f'at least one good reserved')
         else:
-            upd = {"goods_fail": False}
-            updated = order.update(db, db_obj=o, obj_in=upd)
-            logger.info(f'call here order canceling')
+            order.update(db, db_obj=o, obj_in={"goods_fail": False})
             # cancel order
-        logger.info(f'{updated=}')
+            pub_ev  = pub_event.create(db, obj_in=None)
+            cancel_order = {
+                "name" : "order",
+                "order_uuid": val.get("order_uuid"),
+                "canceled": True,
+                "id": pub_ev.id
+            }
+            send_message(p, 'order', cancel_order)
+            
         # TODO here insert event state 2 of buisness logic
     elif val.get("name") == "payment":
         pass

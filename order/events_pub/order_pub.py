@@ -7,7 +7,7 @@ from crud.crud_pub_event import pub_event
 from logger import logger
 from utils import get_settings
 from db.session import SessionLocal
-from events_pub.utils import delivery_report
+from events_pub.utils import send_message
 
 logger.info('Product started')
 kafka_url = get_settings().broker_url
@@ -39,8 +39,4 @@ def publish_order_created(order: Order):
     }
     pub_ev  = pub_event.create(db, obj_in=None)
     order_msg["id"] = pub_ev.id
-    try:
-        p.produce('order', json.dumps(order_msg), callback=delivery_report)
-        p.flush()
-    except Exception as e:
-        logger.error(e)
+    send_message(p, "order", order_msg)

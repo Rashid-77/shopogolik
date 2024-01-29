@@ -8,7 +8,7 @@ from schemas.sub_event import SubEventCreate
 from utils import get_settings
 from utils.log import get_console_logger
 from db.session import SessionLocal
-from events_sub.utils import delivery_report
+from events_sub.utils import send_message
 
 CONSUMER_GROUP = 'product_group'
 
@@ -56,6 +56,12 @@ def dispatch_msgs(msg):
         if sub_ev is not None:
             logger.warn("This is duplicate. Ignored")
             return
+        
+        if val.get("canceled"):
+            ''' cancel goods reservation here for order_uuid... '''
+            logger.error(f'Reservation for order {val.get("order_uuid")} canceled')
+            return
+        
         prod_msg = {
             "name" : "product", 
             "order_uuid": val.get("order_uuid"), 
@@ -71,12 +77,7 @@ def dispatch_msgs(msg):
         # TODO here insert event state 2 of buisness logic
         pub_ev  = pub_event.create(db, obj_in=None)
         prod_msg["id"] = pub_ev.id
-        try:
-            p.produce('product', json.dumps(prod_msg), callback=delivery_report)
-            p.flush()
-            # TODO here insert event state 3 of buisness logic
-        except Exception as e:
-            logger.error(e)
+        send_message(p, "product", prod_msg)
 
 
 def main_consume_loop():
