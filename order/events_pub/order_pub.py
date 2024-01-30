@@ -30,10 +30,12 @@ def publish_order_created(order: Order):
         {"prod_id": 1, "amount": random.randint(1, 20)},
         {"prod_id": 2, "amount": random.randint(1, 5)},
     ]
-    # order_msg = {"order": order.uuid, "products": products}
+    deliv_addr = "Some addres"  # TODO get it from db table
     order_msg = {
         "name" : "order",
         "order_uuid": order.uuid.hex, 
+        "user_id": order.userId,
+        "deliv_addr": deliv_addr,
         "products": products,
         "to_pay": "13"
     }

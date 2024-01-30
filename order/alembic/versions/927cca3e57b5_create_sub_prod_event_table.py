@@ -1,4 +1,4 @@
-"""create sub_event_table
+"""create sub_prod_event_table
 
 Revision ID: 927cca3e57b5
 Revises: 7d5fba52cf9f
@@ -20,7 +20,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     op.create_table(
-        "subevent",
+        "subprodevent",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("event_id", sa.Integer(), nullable=False),
         sa.Column("updDate", 
@@ -29,9 +29,9 @@ def upgrade() -> None:
                   nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_sub_event_id"), "subevent", ["id"], unique=True)
+    op.create_index(op.f("ix_sub_prod_event_id"), "subprodevent", ["id"], unique=True)
 
 
 def downgrade() -> None:
-    op.drop_index(op.f("ix_sub_event_id"), table_name="subevent")
-    op.drop_table("subevent")
+    op.drop_index(op.f("ix_sub_prod_event_id"), table_name="subprodevent")
+    op.drop_table("subprodevent")
