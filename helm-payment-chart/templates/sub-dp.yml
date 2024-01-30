@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    name: {{ .Release.Name }}-sub
+  name: {{ .Release.Name }}-sub
+spec:
+  progressDeadlineSeconds: 2147483647
+  replicas: {{ .Values.paymentSub.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-sub
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: {{ .Release.Name }}-sub
+    spec:
+      containers:
+      - env:
+        - name: POSTGRES_DB
+          value: {{ .Values.db.dbName }}
+        - name: POSTGRES_HOST
+          value: {{ .Values.db.host }}
+        - name: POSTGRES_PORT
+          value: {{ .Values.db.port | quote }}
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              key: user
+              name: payment-postgres-credentials
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: payment-postgres-credentials
+        - name: FIRST_SUPERUSER
+          valueFrom:
+            secretKeyRef:
+              name: payment-server-credentials
+              key: superuser
+        - name: FIRST_SUPERUSER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: payment-server-credentials
+              key: superuser_pwd
+        - name: BROKER_HOST
+          value: kafka-service
+        - name: BROKER_PORT
+          value: "9092"
+
+        image: {{ .Values.paymentSub.image.repository }}
+        imagePullPolicy: {{ .Values.paymentSub.image.pullPolicy }}
+        name: {{ .Release.Name }}-sub
+        resources: {}
+          # limits:
+          #   memory: 2Gi
+          #   cpu: "1"
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
