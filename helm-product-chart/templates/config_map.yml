@@ -6,4 +6,4 @@ metadata:
     name: product-shopogolik-cm
   name: product-shopogolik-cm
 data:
-  db_name: "shopgolik_db"
+  db_name: "product_db"

@@ -24,7 +24,7 @@ db:
   port: 5432
   replicaCount: 1
   host: postgr-product
-  dbName: product_db
+  # dbName: product_db
   mountPath: /var/lib/postgresql/data
   image:
     repository: bitnami/postgresql

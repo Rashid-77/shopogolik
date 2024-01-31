@@ -20,9 +20,12 @@ spec:
       containers:
       - env:
         - name: POSTGRES_DB
-          value: "shopgolik_db"
+          valueFrom:
+            configMapKeyRef:
+              name: product-cm
+              key: db_name
         - name: POSTGRES_HOST
-          value: postgres
+          value: {{ .Values.db.host | quote }}
         - name: POSTGRES_PORT
           value: {{ .Values.db.port | quote }}
         - name: POSTGRES_USER

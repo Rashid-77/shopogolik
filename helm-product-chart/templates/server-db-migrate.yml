@@ -14,7 +14,10 @@ spec:
       containers:
       - env:
         - name: POSTGRES_DB
-          value: {{ .Values.db.dbName }}
+          valueFrom:
+            configMapKeyRef:
+              name: product-cm
+              key: db_name
         - name: POSTGRES_HOST
           value: {{ .Values.db.host }}
         - name: POSTGRES_PORT
