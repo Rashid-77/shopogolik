@@ -8,7 +8,6 @@ from pydantic import BaseModel
 class StockBase(BaseModel):
     prod_id : Optional[int]
     amount : Optional[int]
-    reserved : Optional[int]
 
 # Properties to receive via API on creation
 class StockCreate(StockBase):

@@ -17,7 +17,6 @@ class Stock(Base):
         default=None
         )
     amount = Column(Integer)
-    reserved = Column(Integer)
 
 
 class ProductState(enum.Enum):
