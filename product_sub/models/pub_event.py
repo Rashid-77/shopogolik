@@ -5,6 +5,8 @@ from db import Base
 
 class PubEvent(Base):
     id = Column(Integer, primary_key=True)
+    event_id = Column(Integer)
+    order_id = Column(String)
     updDate = Column(Date)
     delivered = Column(Boolean, default=False)
     deliv_fail = Column(Boolean, default=False)

@@ -20,7 +20,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     op.create_table(
-        "prod_reserv",
+        "prodreserv",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("order_id", sa.Integer(), nullable=False),
         sa.Column("prod_id", sa.Integer(), nullable=False),
@@ -32,9 +32,9 @@ def upgrade() -> None:
         sa.Column("state", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_prod_reserv_id"), "prod_reserv", ["id"], unique=True)
+    op.create_index(op.f("ix_prod_reserv_id"), "prodreserv", ["id"], unique=True)
 
 
 def downgrade() -> None:
-    op.drop_index(op.f("ix_prod_reserv_id"), table_name="prod_reserv")
-    op.drop_table("prod_reserv")
+    op.drop_index(op.f("ix_prod_reserv_id"), table_name="prodreserv")
+    op.drop_table("prodreserv")

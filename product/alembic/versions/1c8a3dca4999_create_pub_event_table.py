@@ -22,6 +22,8 @@ def upgrade() -> None:
     op.create_table(
         "pubevent",
         sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("event_id", sa.Integer(), nullable=True),
+        sa.Column("order_id", sa.Text(), nullable=True),
         sa.Column("updDate", 
                   sa.DateTime(timezone=True), 
                   server_default=sa.text("now()"), 

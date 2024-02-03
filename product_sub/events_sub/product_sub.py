@@ -1,14 +1,23 @@
 # from decimal import *
+import copy
 import json
+
 
 from confluent_kafka import Producer, Consumer, KafkaException, KafkaError
 from crud.crud_pub_event import pub_event
-from crud.crud_sub_event import sub_event
-from schemas.sub_event import SubEventCreate
-from utils import get_settings
-from utils.log import get_console_logger
+from crud.crud_sub_event import sub_event, SubEvent
+from crud.crud_stock import stock
+from crud.reserve_log import reserve_log
+from db_events.sub_events import sub_ev_utils
+from db_events.stock import stock_utils, prod_reserve_msg
 from db.session import SessionLocal
 from events_sub.utils import send_message
+from models.reserve_log import ProdReserveState
+from schemas.sub_event import SubEventCreate
+from schemas.pub_event import PubEventCreate
+from schemas.reserve_log import ReserveCreate, ReserveUpdate
+from utils import get_settings
+from utils.log import get_console_logger
 
 CONSUMER_GROUP = 'product_group'
 
@@ -20,35 +29,9 @@ kafka_url = get_settings().broker_url
 p = Producer({'bootstrap.servers': kafka_url})
 db = SessionLocal()
 
-# In memory stock data for dev
-stock = [
-    {"rod_id": 0, "amount": 0},
-    {"prod_id": 1, "amount": 100},
-    {"prod_id": 2, "amount": 50},
-]
-
-
-def how_many_prod(prod_id):
-    ''' It returns the number of products in stock '''
-    return stock[prod_id].get("amount")
-
-
-def reserve_prod(prod_id, amount):
-    ''' 
-    It reserves the number of products in stock
-    If products are not enough then returns the number of reserved products
-    '''
-    amount_now = stock[prod_id].get("amount")
-    if amount_now <= 0:
-        return 0
-    elif amount_now >= amount:
-        stock[prod_id]["amount"] -= amount
-        return amount
-    stock[prod_id]["amount"] = 0
-    return amount_now
-
 
 def dispatch_msgs(msg):
+    global reserve_state
     val = json.loads(msg.value())
 
     if val.get("name") == "order":
@@ -56,28 +39,81 @@ def dispatch_msgs(msg):
         if sub_ev is not None:
             logger.warn("This is duplicate. Ignored")
             return
+        order_uuid = val.get("order_uuid")
+        sub_ev = sub_event.create(db, obj_in=SubEventCreate(event_id=val.get("id"), 
+                                                            order_id=order_uuid))
         
         if val.get("canceled"):
             ''' cancel goods reservation here for order_uuid... '''
             logger.error(f'Reservation for order {val.get("order_uuid")} canceled')
+            reserve_log.create_cancel_if_not_exists(
+                order_uuid,
+                obj_in=ReserveCreate(
+                    order_event_id=val.get("id"),
+                    order_id=order_uuid,
+                    cancel=True,
+                    state=ProdReserveState.EVENT_COMMIT,
+                )
+            )
+            stock_utils.cancel_reserved(order_uuid)
+            # reserve_log.update()
             return
         
-        prod_msg = {
+        answ_msg = {
             "name" : "product", 
-            "order_uuid": val.get("order_uuid"), 
+            "order_uuid": order_uuid, 
             "reserved": [],
         }
-        # TODO here insert event state 1 of buisness logic
-        for prod in val.get("products"):
+        logger.info(f' id={val.get("id")} , order_uuid={order_uuid}')
+        cnt_full, cnt_fail = 0, 0
+        
+        for prod in val.get("products", []):
+            ''' loop through all goods and try to reserve '''
             prod_id, amount = prod.get("prod_id"), prod.get("amount")
-            res_amount = reserve_prod(prod_id, amount)
-            prod_msg["reserved"].append({"prod_id":prod_id, "amount": res_amount})
+            
+            rl = reserve_log.create(
+                db, 
+                obj_in=ReserveCreate(
+                    order_event_id=val.get("id"),
+                    order_id=order_uuid,
+                    prod_id=prod_id,
+                    to_reserve=amount,
+                    state=ProdReserveState.EVENT_COMMIT,
+                )
+            )
+            reserved, state = stock_utils.reserve_product(prod_id, amount)
+            logger.info(f' {state=}, {reserved=}')
+            reserve_log.update(
+                db, 
+                db_obj=rl,
+                obj_in={
+                    "prod_id": prod_id,
+                    "state": state,
+                    "amount_processed": reserved,
+                }
+            )
+            if state == ProdReserveState.RESERVED:
+                cnt_full += 1
+            if state == ProdReserveState.OUT_OF_STOCK:
+                cnt_fail += 1
+            s = prod_reserve_msg(state)
+            answ_msg["reserved"].append({"prod_id":prod_id, "amount": reserved, "msg":s})
+        
+        if cnt_full == len(val.get("products")):
+            answ_msg["state"] = prod_reserve_msg(ProdReserveState.RESERVED)
+        elif cnt_fail == len(val.get("products")):
+            answ_msg["state"] = prod_reserve_msg(ProdReserveState.OUT_OF_STOCK)
+        else:
+            answ_msg["state"] = prod_reserve_msg(ProdReserveState.PARTIALLY)
 
-        sub_ev = sub_event.create(db, obj_in=SubEventCreate(event_id=val.get("id")))
-        # TODO here insert event state 2 of buisness logic
-        pub_ev  = pub_event.create(db, obj_in=None)
-        prod_msg["id"] = pub_ev.id
-        send_message(p, "product", prod_msg)
+        sub_ev = sub_event.update(db, db_obj=sub_ev, obj_in=SubEventCreate(
+                event_id = val.get("id"), 
+                order_id = val.get("order_uuid")
+            )
+        )
+        pub_ev  = pub_event.create(db, obj_in=PubEventCreate(order_id=val.get("order_uuid")))
+        answ_msg["id"] = pub_ev.id
+        send_message(p, "product", answ_msg)
 
 
 def main_consume_loop():
