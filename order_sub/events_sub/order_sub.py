@@ -32,7 +32,7 @@ def dispatch_msgs(msg):
     if val.get("name") == "product":
         sub_ev = sub_prod_event.get_by_event_id(db, val.get("id"))
         if sub_ev is not None:
-            logger.warn("This is duplicate. Ignored")
+            logger.warn(f"This is duplicate prod msg ev_id={val.get('id')}. Ignored")
             return
         # TODO here insert event state 1 of buisness logic
         sub_ev = sub_prod_event.create(db, obj_in=SubEventCreate(event_id=val.get("id")))
@@ -54,7 +54,7 @@ def dispatch_msgs(msg):
     elif val.get("name") == "payment":
         sub_ev = sub_paym_event.get_by_event_id(db, val.get("id"))
         if sub_ev is not None:
-            logger.warn("This is duplicate. Ignored")
+            logger.warn(f"This is duplicate paym msg ev_id={val.get('id')}. Ignored")
             return
         # TODO here insert event state 1 of buisness logic
         sub_ev = sub_paym_event.create(db, obj_in=SubEventCreate(event_id=val.get("id")))
