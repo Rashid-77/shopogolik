@@ -14,10 +14,17 @@ spec:
       paths:
       
       # payment section
+      # - backend:
+      #     service:
+      #       name: {{ .Release.Name}}
+      #       port:
+      #         number: {{ .Values.paymentServer.port }}
+      #   path: /api/v1/payment/ping
+      #   pathType: Exact
       - backend:
           service:
             name: {{ .Release.Name}}
             port:
               number: {{ .Values.paymentServer.port }}
-        path: /api/v1/payment/ping
-        pathType: Exact
+        path: /api/v1/balance/
+        pathType: Prefix
