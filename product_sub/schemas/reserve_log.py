@@ -11,7 +11,7 @@ class ReserveBase(BaseModel):
     prod_id : Optional[int] = 0
     to_reserve : Optional[int] = 0
     cancel : Optional[bool] = False
-    state: Optional[enum.Enum]                # event_received, reserved, canceled, answer_sent
+    state: Optional[enum.Enum]
     amount_processed: Optional[int] = 0
 
 # Properties to receive via API on creation

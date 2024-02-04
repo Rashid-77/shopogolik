@@ -1,21 +1,18 @@
 # from decimal import *
-import copy
 import json
 
 
 from confluent_kafka import Producer, Consumer, KafkaException, KafkaError
 from crud.crud_pub_event import pub_event
-from crud.crud_sub_event import sub_event, SubEvent
-from crud.crud_stock import stock
+from crud.crud_sub_event import sub_event
 from crud.reserve_log import reserve_log
-from db_events.sub_events import sub_ev_utils
 from db_events.stock import stock_utils, prod_reserve_msg
 from db.session import SessionLocal
 from events_sub.utils import send_message
 from models.reserve_log import ProdReserveState
 from schemas.sub_event import SubEventCreate
 from schemas.pub_event import PubEventCreate
-from schemas.reserve_log import ReserveCreate, ReserveUpdate
+from schemas.reserve_log import ReserveCreate
 from utils import get_settings
 from utils.log import get_console_logger
 
@@ -67,37 +64,12 @@ def dispatch_msgs(msg):
         logger.info(f' id={val.get("id")} , order_uuid={order_uuid}')
         cnt_full, cnt_fail = 0, 0
         
-        for prod in val.get("products", []):
-            ''' loop through all goods and try to reserve '''
-            prod_id, amount = prod.get("prod_id"), prod.get("amount")
-            
-            rl = reserve_log.create(
-                db, 
-                obj_in=ReserveCreate(
-                    order_event_id=val.get("id"),
-                    order_id=order_uuid,
-                    prod_id=prod_id,
-                    to_reserve=amount,
-                    state=ProdReserveState.EVENT_COMMIT,
-                )
-            )
-            reserved, state = stock_utils.reserve_product(prod_id, amount)
-            logger.info(f' {state=}, {reserved=}')
-            reserve_log.update(
-                db, 
-                db_obj=rl,
-                obj_in={
-                    "prod_id": prod_id,
-                    "state": state,
-                    "amount_processed": reserved,
-                }
-            )
-            if state == ProdReserveState.RESERVED:
-                cnt_full += 1
-            if state == ProdReserveState.OUT_OF_STOCK:
-                cnt_fail += 1
-            s = prod_reserve_msg(state)
-            answ_msg["reserved"].append({"prod_id":prod_id, "amount": reserved, "msg":s})
+        cnt_full, cnt_fail  = stock_utils.reserve_product(
+            val.get("id"),
+            order_uuid, 
+            val.get("products", []),
+            answ_msg
+        )
         
         if cnt_full == len(val.get("products")):
             answ_msg["state"] = prod_reserve_msg(ProdReserveState.RESERVED)

@@ -1,6 +1,6 @@
 import enum
 
-from sqlalchemy import Column, Boolean, Integer, Enum, DateTime, Date
+from sqlalchemy import Column, Boolean, Integer, Enum, DateTime, String
 from sqlalchemy.sql import func
 
 from db import Base
@@ -25,7 +25,7 @@ class ProdReserveState(enum.Enum):
 class Reserve(Base):
     id = Column(Integer, primary_key=True)
     order_event_id = Column(Integer)
-    order_id = Column(Integer)
+    order_id = Column(String)
     prod_id = Column(Integer)
     to_reserve = Column(Integer)
     cancel = Column(Boolean)
