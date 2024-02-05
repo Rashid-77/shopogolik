@@ -1,12 +1,13 @@
-from typing import Optional
+from typing import Any, Optional, Dict, Union
+from uuid import UUID
+from datetime import datetime
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from crud.base import CRUDBase
 from models.balance import Balance
-from models.depos_idemp import deposidemp
 from schemas.balance import BalanceCreate, BalanceUpdate
 from logger import logger
-
 
 class CRUDBalance(CRUDBase[Balance, BalanceCreate, BalanceUpdate]):
 
@@ -16,24 +17,28 @@ class CRUDBalance(CRUDBase[Balance, BalanceCreate, BalanceUpdate]):
     def get_by_user_id(self, db: Session, *, user_id: int) -> Optional[Balance]:
         return db.query(Balance) \
                 .filter(Balance.user_id == user_id) \
-                .order_by(Balance.created_at.desc()).first()
+                .order_by(Balance.updDate.desc()).first()
 
     def get_balance(self, db: Session, *, user_id: int) -> Optional[Balance]:
         return db.query(Balance) \
                 .filter(Balance.user_id == user_id) \
-                .order_by(Balance.created_at.desc()).first()
+                .order_by(Balance.updDate.desc()).first()
 
     def create(
             self, db: Session, user_id: int, depos_uuid: str, amount: float
         ) -> Balance:
-        idemp = db.query(deposidemp).filter(deposidemp.uuid == depos_uuid).first()
-        if idemp:
+        account = db.query(Balance) \
+                    .filter(and_(
+                        Balance.user_id == user_id,
+                        Balance.depos_uuid == depos_uuid)
+                    ).first()
+        if account:
             logger.warn(f"idempotency: duplicate {depos_uuid=}")
             return None
         
         account = db.query(Balance) \
                     .filter(Balance.user_id == user_id) \
-                    .order_by(Balance.created_at.desc()).first()
+                    .order_by(Balance.updDate.desc()).first()
         balance = 0 if account is None else account.balance
         new_balance = balance + amount
         if new_balance < 0:
@@ -41,19 +46,17 @@ class CRUDBalance(CRUDBase[Balance, BalanceCreate, BalanceUpdate]):
                         f"current balance({balance}) + amount({amount}) = {new_balance}")
             return None
         
-        db_idemp = deposidemp(uuid=depos_uuid)
-
-        db_bal = Balance(
+        db_obj = Balance(
             user_id = user_id,
-            deposidemp = db_idemp,
+            depos_uuid = depos_uuid,
             balance = new_balance,
             amount = amount,
             deposit = True,
         )
-        db.add(db_bal)
+        db.add(db_obj)
         db.commit()
-        db.refresh(db_bal)
-        return db_bal
+        db.refresh(db_obj)
+        return db_obj
 
     # def update(
     #     self, db: Session, *, db_obj: Balance, obj_in: Union[BalanceUpdate, Dict[str, Any]]

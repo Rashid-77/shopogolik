@@ -1,14 +1,16 @@
-from decimal import *
+from decimal import Decimal
 import json
 
 from confluent_kafka import Producer, Consumer, KafkaException, KafkaError
 from crud.crud_pub_event import pub_event
 from crud.crud_sub_event import sub_event
 from schemas.sub_event import SubEventCreate
+from schemas.pub_event import PubEventCreate
 from utils import get_settings
 from utils.log import get_console_logger
 from db.session import SessionLocal
 from events_sub.utils import send_message
+from events_sub.db_utils import balance_utils
 
 CONSUMER_GROUP = 'payment_group'
 
@@ -20,57 +22,49 @@ kafka_url = get_settings().broker_url
 p = Producer({'bootstrap.servers': kafka_url})
 db = SessionLocal()
 
-# In memory user balance for dev
-balance = [
-    {"user_id": 0, "amount": 30, "reserved": Decimal(0)},
-    {"user_id": 1, "amount": 30, "reserved": Decimal(0)},
-    {"user_id": 2, "amount": 50, "reserved": Decimal(0)},
-]
-
-def get_balance(user_id):
-    return Decimal(balance[user_id]["amount"])
-
-
-def reserve_balance(user_id, amount):
-    balance[user_id]["amount"] -= amount
-    balance[user_id]["reserved"] = amount
-    return balance[user_id]["amount"]
-
-
-def withdraw_money(user_id):
-    balance[user_id]["reserved"] = 0
-    return balance[user_id]["amount"]
-
 
 def dispatch_msgs(msg):
     val = json.loads(msg.value())
 
     if val.get("name") == "order":
-        sub_ev = sub_event.get_by_event_id(db, val.get("id"))
+        event_id = val.get("id")
+        sub_ev = sub_event.get_by_event_id(db, event_id)
         if sub_ev is not None:
             logger.warn("This is duplicate. Ignored")
             return
         
-        if val.get("canceled"):
-            ''' cancel money reservation here for order_uuid... '''
-            logger.error(f'Reservation for order {val.get("order_uuid")} canceled')
-            return
-        
+        order_uuid = val.get("order_uuid")
+        sub_ev = sub_event.create(
+            db, obj_in=SubEventCreate(event_id=event_id, order_uuid=order_uuid)
+        )
         answer_msg = {
             "name" : "payment",
-            "order_uuid": val.get("order_uuid"), 
-            "reserved": False,
+            "order_uuid": order_uuid, 
         }
-        # TODO here insert event state 1 of buisness logic
-        if val.get("user_id") is not None and val.get("to_pay") is not None:
-            # Check if there are enough funds
-            if get_balance(val.get("user_id")) >= Decimal(val.get("to_pay")):
-                reserve_balance(val.get("user_id"), Decimal(val.get("to_pay")))
-                answer_msg["reserved"] = True
-        logger.info(f' user balance={get_balance(val.get("user_id"))}')
-        sub_ev = sub_event.create(db, obj_in=SubEventCreate(event_id=val.get("id")))
-        # TODO here insert event state 2 of buisness logic
-        pub_ev  = pub_event.create(db, obj_in=None)
+
+        if val.get("canceled"):
+            success = balance_utils.cancel_reserved(
+                event_id,
+                val.get("user_id"),
+                order_uuid, 
+                answ_msg=answer_msg
+            )
+            logger.error(f'Reservation for order {order_uuid} canceled')
+
+            if not success:
+                return
+        else:
+            success = balance_utils.reserve_money(
+                event_id, 
+                val.get("user_id"), 
+                order_uuid, 
+                amount=Decimal(val.get("to_pay")),
+                answ_msg=answer_msg
+            )
+            if not success and answer_msg['state'] == 'already reserved':
+                return
+
+        pub_ev  = pub_event.create(db, obj_in=PubEventCreate(order_id=order_uuid))
         answer_msg["id"] = pub_ev.id
         send_message(p, "payment", answer_msg)
 

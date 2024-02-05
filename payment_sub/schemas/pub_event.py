@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 # Shared properties
 class PubEventBase(BaseModel):
+    order_id: Optional[str]
     delivered: Optional[bool] = False
     deliv_fail: Optional[bool] = False
 

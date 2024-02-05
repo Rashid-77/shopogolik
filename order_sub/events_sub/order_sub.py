@@ -45,6 +45,9 @@ def dispatch_msgs(msg):
         if at_least_one_reserved:
             order.update(db, db_obj=o, obj_in={"goods_reserved": True})
             logger.info(f'at least one good reserved')
+        # TODO
+        # elif goods-returned-to-stock 
+        #   pass
         else:
             cancel_order = True
             order.update(db, db_obj=o, obj_in={"goods_fail": True})
@@ -62,6 +65,10 @@ def dispatch_msgs(msg):
         if val.get("reserved"):
             order.update(db, db_obj=o, obj_in={"money_reserved": True})
             logger.info(f'Money reserved')
+        elif val.get("refunded"):
+            # check here if refunding was successfully finished
+            order.update(db, db_obj=o, obj_in={"money_fail": True})
+            pass
         else:
             cancel_order = True
             order.update(db, db_obj=o, obj_in={"money_fail": True})
@@ -74,6 +81,7 @@ def dispatch_msgs(msg):
         pub_ev  = pub_event.create(db, obj_in=None)
         cancel_order = {
             "name" : "order",
+            "user_id": val.get("user_id"),
             "order_uuid": val.get("order_uuid"),
             "canceled": True,
             "id": pub_ev.id

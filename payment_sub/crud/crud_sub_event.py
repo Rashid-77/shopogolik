@@ -6,17 +6,19 @@ from models.sub_event import SubEvent
 from schemas.sub_event import SubEventCreate, SubEventUpdate
 from logger import logger
 
+
 class CRUDSubEvent(CRUDBase[SubEvent, SubEventCreate, SubEventUpdate]):
 
     def get(self, db: Session, id: int) -> Optional[SubEvent]:
-        return db.query(self.model).filter(self.model.id == id).first()
+        return db.query(SubEvent).filter(SubEvent.id == id).first()
 
     def get_by_event_id(self, db: Session, ev_id: int) -> Optional[SubEvent]:
-        return db.query(self.model).filter(self.model.event_id == ev_id).first()
+        return db.query(SubEvent).filter(SubEvent.event_id == ev_id).first()
 
     def create(self, db: Session, obj_in: SubEventCreate) -> SubEvent:
         db_obj = SubEvent(
             event_id = obj_in.event_id,
+            order_id = obj_in.order_id,
         )
         db.add(db_obj)
         db.commit()

@@ -23,9 +23,10 @@ def upgrade() -> None:
         "subevent",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("event_id", sa.Integer(), nullable=True),
+        sa.Column("order_id", sa.Text(), nullable=True),
         sa.Column("updDate", 
                   sa.DateTime(timezone=True), 
-                  server_default=sa.text("now()"), 
+                  server_default=sa.func.now(),
                   nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
