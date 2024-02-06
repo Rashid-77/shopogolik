@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: logistic-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/auth-url: "http://arch.homework/api/v1/auth"
+    nginx.ingress.kubernetes.io/auth-signin: "http://arch.homework/api/v1/signin"
+    nginx.ingress.kubernetes.io/auth-response-headers: "X-UserId,X-User,X-First-Name,X-Last-Name,X-Email,X-Phone"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: {{ .Values.logisticServer.host }}
+    http:
+      paths:
+      - backend:
+          service:
+            name: {{ .Release.Name }}
+            port:
+              number: {{ .Values.logisticServer.port }}
+        path: /api/v1/logistic/
+        pathType: Prefix
