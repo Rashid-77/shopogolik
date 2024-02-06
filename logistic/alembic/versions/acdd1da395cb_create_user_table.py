@@ -20,7 +20,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     op.create_table(
-        "user",
+        "User",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("username", sa.String(), nullable=True),
         sa.Column("first_name", sa.String(), nullable=True),
@@ -32,13 +32,13 @@ def upgrade() -> None:
         sa.Column("is_superuser", sa.Boolean(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_user_email"), "user", ["email"], unique=True)
-    op.create_index(op.f("ix_user_full_name"), "user", ["username"], unique=False)
-    op.create_index(op.f("ix_user_id"), "user", ["id"], unique=True)
+    op.create_index(op.f("ix_user_email"), "User", ["email"], unique=True)
+    op.create_index(op.f("ix_user_full_name"), "User", ["username"], unique=False)
+    op.create_index(op.f("ix_user_id"), "User", ["id"], unique=True)
 
 
 def downgrade() -> None:
-    op.drop_index(op.f("ix_user_email"), table_name="user")
-    op.drop_index(op.f("ix_user_full_name"), table_name="user")
-    op.drop_index(op.f("ix_user_id"), table_name="user")
-    op.drop_table("user")
+    op.drop_index(op.f("ix_user_email"), table_name="User")
+    op.drop_index(op.f("ix_user_full_name"), table_name="User")
+    op.drop_index(op.f("ix_user_id"), table_name="User")
+    op.drop_table("User")

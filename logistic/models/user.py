@@ -3,10 +3,10 @@ from sqlalchemy import Boolean, Column, Date, Integer, String, Text
 from db import Base
 
 
-class user(Base):
-    
+class User(Base):
+    __tablename__ = "User"
     id = Column(Integer, primary_key=True)
-    username = Column(String)#, length=256)
+    username = Column(String)
     first_name = Column(String)
     last_name = Column(String)
     email = Column(String)

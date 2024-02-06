@@ -24,7 +24,7 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("user_id", 
                   sa.Integer(), 
-                  sa.ForeignKey('user.id', ondelete='CASCADE'),
+                  sa.ForeignKey('User.id', ondelete='CASCADE'),
                   nullable=True ),
         sa.Column("from_t", sa.DateTime(timezone=True), nullable=True),
         sa.Column("to_t", sa.DateTime(timezone=True), nullable=True),

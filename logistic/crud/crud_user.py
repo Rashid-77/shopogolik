@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 # from backend import get_logger
 from crud.base import CRUDBase
-from models.user import user as User
+from models.user import User
 from schemas.user import UserCreate, UserUpdate
 from utils.security import get_password_hash, verify_password
 

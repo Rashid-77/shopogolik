@@ -20,7 +20,7 @@ def add_courier(
     user_id: int,
     obj_in: schemas.CourierCreate,
     db: Session = Depends(deps.get_db),
-    current_user: models.user = Depends(deps.get_current_active_user),
+    current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
         Add courier to logistic service
@@ -45,7 +45,7 @@ def get_free_couriers(
     db: Session = Depends(deps.get_db),
     offset:int = 0,
     limit: int = 100,
-    current_user: models.user = Depends(deps.get_current_active_user),
+    current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Get free couriers.
@@ -64,7 +64,7 @@ def get_free_couriers(
 def get_courier(
     user_id: int,
     db: Session = Depends(deps.get_db),
-    current_user: models.user = Depends(deps.get_current_active_user),
+    current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Get courier info by user_id.
@@ -86,7 +86,7 @@ def update_user(
     db: Session = Depends(deps.get_db),
     user_id: int,
     user_in: schemas.CourierUpdate,
-    current_user: models.user = Depends(deps.get_current_active_user),
+    current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Update a user.
@@ -116,7 +116,7 @@ def delete_courier(
     *,
     db: Session = Depends(deps.get_db),
     user_id: int,
-    current_user: models.user = Depends(deps.get_current_active_user),
+    current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Delete courier.
