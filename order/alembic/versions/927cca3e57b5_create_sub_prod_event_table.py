@@ -25,7 +25,7 @@ def upgrade() -> None:
         sa.Column("event_id", sa.Integer(), nullable=False),
         sa.Column("updDate", 
                   sa.DateTime(timezone=True), 
-                  server_default=sa.text("now()"), 
+                  server_default=sa.func.now(),
                   nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )

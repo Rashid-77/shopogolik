@@ -59,6 +59,7 @@ def dispatch_msgs(msg):
         answ_msg = {
             "name" : "product", 
             "order_uuid": order_uuid, 
+            "user_id": val.get("user_id"),
             "reserved": [],
         }
         logger.info(f' id={val.get("id")} , order_uuid={order_uuid}')

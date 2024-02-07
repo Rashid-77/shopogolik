@@ -140,7 +140,7 @@ class BalanceUtils():
                 refunding = True,
                 success = True
             )
-            logger.info(f' user balance: {bal.balance}) - {bal.amount} = {new_balance}')
+            logger.info(f' user balance: {bal.balance} + {bal.amount} = {new_balance}')
             session.add(new_bal)
             session.commit()
             answ_msg["refunded"] = True

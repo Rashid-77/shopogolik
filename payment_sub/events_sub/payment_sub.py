@@ -16,7 +16,7 @@ CONSUMER_GROUP = 'payment_group'
 
 
 logger = get_console_logger(__name__)
-logger.info("Product_sub started")
+logger.info("Payment_sub started")
 
 kafka_url = get_settings().broker_url
 p = Producer({'bootstrap.servers': kafka_url})
@@ -40,6 +40,7 @@ def dispatch_msgs(msg):
         answer_msg = {
             "name" : "payment",
             "order_uuid": order_uuid, 
+            "user_id": val.get("user_id")
         }
 
         if val.get("canceled"):
