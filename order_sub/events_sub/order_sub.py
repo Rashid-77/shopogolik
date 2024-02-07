@@ -3,7 +3,7 @@ import json
 
 from confluent_kafka import Producer, Consumer, KafkaException, KafkaError
 from crud.crud_pub_event import pub_event
-from crud.crud_sub_event import sub_prod_event, sub_paym_event
+from crud.crud_sub_event import sub_prod_event, sub_paym_event, sub_logis_event
 from schemas.sub_event import SubEventCreate
 from crud import order
 from models import Order
@@ -75,7 +75,23 @@ def dispatch_msgs(msg):
             logger.info(f'Balance is insufficient')
         # TODO here insert event state 2 of buisness logic
     elif val.get("name") == "logistic":
-        pass
+        logger.info(f'enter to logistic')
+        sub_ev = sub_logis_event.get_by_event_id(db, val.get("id"))
+        if sub_ev is not None:
+            logger.warn(f"This is duplicate logistic msg ev_id={val.get('id')}. Ignored")
+            return
+        sub_ev = sub_logis_event.create(db, obj_in=SubEventCreate(event_id=val.get("id")))
+
+        if val.get("reserved"):
+            order.update(db, db_obj=o, obj_in={"courier_reserved": True})
+            logger.info(f'Courier reserved')
+        elif val.get("canceled"):
+            order.update(db, db_obj=o, obj_in={"courier_fail": True})
+            logger.info(f'Courier is canceled')
+        else:
+            cancel_order = True
+            order.update(db, db_obj=o, obj_in={"courier_fail": True})
+            logger.info(f'There is no available courier')
 
     if cancel_order:
         pub_ev  = pub_event.create(db, obj_in=None)
@@ -116,9 +132,15 @@ def main_consume_loop():
             'group.id': CONSUMER_GROUP,
             'auto.offset.reset': 'earliest'
         })
+        c_logis = Consumer({
+            'bootstrap.servers': kafka_url,
+            'group.id': CONSUMER_GROUP,
+            'auto.offset.reset': 'earliest'
+        })
 
         c_prod.subscribe(['product'])
         c_paym.subscribe(['payment'])
+        c_logis.subscribe(['logistic'])
         while True:
             # TODO change to poll consume to the batch consume in the future
             msg = c_prod.poll(POLL_WAIT)
@@ -126,6 +148,10 @@ def main_consume_loop():
                 process_pool(msg)
             
             msg = c_paym.poll(POLL_WAIT)
+            if msg is not None:
+                process_pool(msg)
+
+            msg = c_logis.poll(POLL_WAIT)
             if msg is not None:
                 process_pool(msg)
     finally:

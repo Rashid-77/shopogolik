@@ -35,6 +35,8 @@ def publish_order_created(order: Order):
         "name" : "order",
         "order_uuid": order.uuid.hex, 
         "user_id": order.userId,
+        "deliv_t_from": "2024-03-01 10:00:00",
+        "deliv_t_to": "2024-03-01 12:00:00",
         "deliv_addr": deliv_addr,
         "products": products,
         "to_pay": "13"

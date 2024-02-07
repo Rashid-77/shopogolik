@@ -2,7 +2,7 @@ from typing import Any, Optional, Dict, Union
 from sqlalchemy.orm import Session
 
 from crud.base import CRUDBase
-from models.sub_event import SubProdEvent, SubPaymEvent
+from models.sub_event import SubProdEvent, SubPaymEvent, SubLogisEvent
 from schemas.sub_event import SubEventCreate, SubEventUpdate
 
 
@@ -25,3 +25,4 @@ class CRUDSubEvent(CRUDBase[SubPaymEvent, SubEventCreate, SubEventUpdate]):
 
 sub_prod_event = CRUDSubEvent(SubProdEvent)
 sub_paym_event = CRUDSubEvent(SubPaymEvent)
+sub_logis_event = CRUDSubEvent(SubLogisEvent)
