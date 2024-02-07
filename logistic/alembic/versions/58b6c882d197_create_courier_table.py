@@ -22,7 +22,7 @@ def upgrade() -> None:
     op.create_table(
         "courier",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("user_id", 
+        sa.Column("courier_id", 
                   sa.Integer(), 
                   sa.ForeignKey('User.id', ondelete='CASCADE'),
                   nullable=True ),
@@ -30,6 +30,8 @@ def upgrade() -> None:
         sa.Column("to_t", sa.DateTime(timezone=True), nullable=True),
         sa.Column("order_uuid", sa.Text(), nullable=True),
         sa.Column("deliv_addr", sa.Text(), nullable=True),
+        sa.Column("client_id", sa.Integer(), nullable=True ),
+        sa.Column("reserve_uuid", sa.Integer, default=""),
         sa.Column("created_at", 
                   sa.DateTime(timezone=True), 
                   server_default=sa.func.now(), 

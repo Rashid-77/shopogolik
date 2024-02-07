@@ -18,7 +18,6 @@ REQUEST_TIME_BACKET = Histogram('courier_request_latency_seconds', 'Time spent p
 @REQUEST_TIME_BACKET.labels(endpoint='courier').time()
 def add_courier(
     user_id: int,
-    obj_in: schemas.CourierCreate,
     db: Session = Depends(deps.get_db),
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
@@ -35,7 +34,7 @@ def add_courier(
             raise HTTPException(status_code=422, detail="User is not active.")
         # if u.is_courier:
         #     raise HTTPException(status_code=400, detail="The user is not a courier")
-        return crud.courier.create(db, user_id=user_id, obj_in=obj_in)
+        return crud.courier.create(db, user_id=user_id)
     raise HTTPException(status_code=400, detail="You doesn`t have enough privileges")
 
 

@@ -4,6 +4,7 @@ from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import relationship
 
 from db import Base
+from models.user import User
 
 
 class Courier(Base):
