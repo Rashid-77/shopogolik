@@ -25,7 +25,7 @@ def upgrade() -> None:
         sa.Column("courier_id", 
                   sa.Integer(), 
                   sa.ForeignKey('User.id', ondelete='CASCADE'),
-                  nullable=True ),
+                  nullable=True, unique=True),
         sa.Column("from_t", sa.DateTime(timezone=True), nullable=True),
         sa.Column("to_t", sa.DateTime(timezone=True), nullable=True),
         sa.Column("order_uuid", sa.Text(), nullable=True),

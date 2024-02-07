@@ -34,6 +34,9 @@ def add_courier(
             raise HTTPException(status_code=422, detail="User is not active.")
         # if u.is_courier:
         #     raise HTTPException(status_code=400, detail="The user is not a courier")
+        cu = crud.courier.get_courier_id(db, user_id=user_id)
+        if cu:
+            raise HTTPException(status_code=400, detail="Courier is in logistic list already.")
         return crud.courier.create(db, user_id=user_id)
     raise HTTPException(status_code=400, detail="You doesn`t have enough privileges")
 

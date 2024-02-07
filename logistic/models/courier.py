@@ -10,7 +10,8 @@ class Courier(Base):
     id = Column(Integer, primary_key=True)
     courier_id = Column(
         Integer, 
-        ForeignKey('User.id', ondelete='CASCADE')
+        ForeignKey('User.id', ondelete='CASCADE'),
+        unique=True
     )
     from_t = Column(DATETIME, default=datetime.min)
     to_t = Column(DATETIME, default=datetime.min)
