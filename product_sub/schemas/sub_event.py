@@ -23,8 +23,7 @@ class SubEventUpdate(SubEventBase):
 class SubEventInDBBase(SubEventBase):
     id: Optional[int] = None
     event_id: Optional[int] = None
-    createDate : Optional[datetime] = None
-    updDate : Optional[datetime] = None
+    created_at : Optional[datetime] = None
 
     # class Config:
     #     orm_mode = True

@@ -1,13 +1,14 @@
-import json
 import random
 
 from confluent_kafka import Producer
-from models.order import Order
+
 from crud.crud_pub_event import pub_event
-from logger import logger
-from utils import get_settings
 from db.session import SessionLocal
 from events_pub.utils import send_message
+from logger import logger
+from models.order import Order
+from schemas.pub_event import PubEventCreate
+from utils import get_settings
 
 logger.info('Product started')
 kafka_url = get_settings().broker_url
@@ -41,6 +42,6 @@ def publish_order_created(order: Order):
         "products": products,
         "to_pay": "13"
     }
-    pub_ev  = pub_event.create(db, obj_in=None)
+    pub_ev  = pub_event.create(db, obj_in=PubEventCreate(order_id=order.uuid.hex))
     order_msg["id"] = pub_ev.id
     send_message(p, "order", order_msg)

@@ -23,7 +23,7 @@ class PubEventUpdate(PubEventBase):
 
 class PubEventInDBBase(PubEventBase):
     id: Optional[int] = None
-    updDate : Optional[datetime] = None
+    created_at : Optional[datetime] = None
 
     # class Config:
     #     orm_mode = True

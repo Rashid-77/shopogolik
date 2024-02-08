@@ -25,7 +25,7 @@ def upgrade() -> None:
         sa.Column("order_id", sa.Text(), nullable=True),
         sa.Column("delivered", sa.Boolean(), nullable=True),
         sa.Column("deliv_fail", sa.Boolean(), nullable=True),
-        sa.Column("updDate", 
+        sa.Column("created_at", 
                   sa.DateTime(timezone=True), 
                   server_default=sa.func.now(),
                   nullable=True),

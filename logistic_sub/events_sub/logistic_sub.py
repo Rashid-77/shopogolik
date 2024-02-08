@@ -35,7 +35,7 @@ def dispatch_msgs(msg):
         
         order_uuid = val.get("order_uuid")
         sub_ev = sub_event.create(
-            db, obj_in=SubEventCreate(event_id=event_id, order_uuid=order_uuid)
+            db, obj_in=SubEventCreate(event_id=event_id, order_id=order_uuid)
         )
         answer_msg = {
             "name" : "logistic",

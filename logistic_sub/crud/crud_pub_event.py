@@ -9,7 +9,7 @@ from schemas.pub_event import PubEventCreate, PubEventUpdate
 class CRUDPubEvent(CRUDBase[PubEvent, PubEventCreate, PubEventUpdate]):
 
     def get(self, db: Session, id: int) -> Optional[PubEvent]:
-        return db.query(self.model).filter(self.model.id == id).first()
+        return db.query(PubEvent).filter(PubEvent.id == id).first()
 
     def create(self, db: Session, *, obj_in: PubEventCreate) -> PubEvent:
         db_obj = PubEvent(

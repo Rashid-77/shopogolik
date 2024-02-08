@@ -20,11 +20,11 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     op.create_table(
-        
         "sublogisevent",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("event_id", sa.Integer(), nullable=False),
-        sa.Column("updDate", 
+        sa.Column("order_id", sa.Text(), nullable=True),
+        sa.Column("created_at", 
                   sa.DateTime(timezone=True), 
                   server_default=sa.func.now(),
                   nullable=True),

@@ -13,6 +13,7 @@ class CRUDPubEvent(CRUDBase[PubEvent, PubEventCreate, PubEventUpdate]):
 
     def create(self, db: Session, *, obj_in: PubEventCreate) -> PubEvent:
         db_obj = PubEvent(
+            order_id = obj_in.order_id,
             delivered = False,
             deliv_fail = False,
         )

@@ -11,7 +11,8 @@ class SubEventBase(BaseModel):
 
 # Properties to receive via API on creation
 class SubEventCreate(SubEventBase):
-    pass
+    event_id: int
+    order_id: str
 
 
 # Properties to receive via API on update
@@ -21,7 +22,8 @@ class SubEventUpdate(SubEventBase):
 
 class SubEventInDBBase(SubEventBase):
     id: Optional[int] = None
-    updDate : Optional[datetime] = None
+    event_id: Optional[int] = None
+    created_at : Optional[datetime] = None
 
     # class Config:
     #     orm_mode = True
