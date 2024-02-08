@@ -22,9 +22,9 @@ def upgrade() -> None:
     op.create_table(
         "pubevent",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("updDate", 
+        sa.Column("created_at", 
                   sa.DateTime(timezone=True), 
-                  server_default=sa.text("now()"), 
+                  server_default=sa.func.now(), 
                   nullable=True),
         sa.Column("delivered", sa.Boolean(), nullable=True),
         sa.Column("deliv_fail", sa.Boolean(), nullable=True),
