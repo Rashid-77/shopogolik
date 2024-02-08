@@ -5,6 +5,7 @@ from confluent_kafka import Producer, Consumer, KafkaException, KafkaError
 from crud.crud_pub_event import pub_event
 from crud.crud_sub_event import sub_prod_event, sub_paym_event, sub_logis_event
 from schemas.sub_event import SubEventCreate
+from schemas.pub_event import PubEventCreate
 from crud import order
 from models import Order
 from schemas.order import OrderUpdate
@@ -26,16 +27,22 @@ db = SessionLocal()
 
 def dispatch_msgs(msg):
     val = json.loads(msg.value())
-
-    o: Order = order.get(db, val.get("order_uuid"))
+    order_uuid = val.get("order_uuid")
+    o: Order = order.get(db, order_uuid)
+    event_id = val.get("id")
     cancel_order = False
+
     if val.get("name") == "product":
-        sub_ev = sub_prod_event.get_by_event_id(db, val.get("id"))
+        sub_ev = sub_prod_event.get_by_event_id(db, event_id)
         if sub_ev is not None:
-            logger.warn(f"This is duplicate prod msg ev_id={val.get('id')}. Ignored")
+            logger.warn(f"This is duplicate prod msg ev_id={event_id}. Ignored")
             return
-        # TODO here insert event state 1 of buisness logic
-        sub_ev = sub_prod_event.create(db, obj_in=SubEventCreate(event_id=val.get("id")))
+        
+        sub_ev = sub_prod_event.create(db, obj_in=SubEventCreate(
+                event_id=event_id,
+                order_id=order_uuid
+            )
+        )
         
         at_least_one_reserved = False
         for prod in val.get("reserved", []):
@@ -52,41 +59,46 @@ def dispatch_msgs(msg):
             cancel_order = True
             order.update(db, db_obj=o, obj_in={"goods_fail": True})
             logger.info(f'All goods in the order are out of stock')
-        # TODO here insert event state 2 of buisness logic
 
     elif val.get("name") == "payment":
-        sub_ev = sub_paym_event.get_by_event_id(db, val.get("id"))
+        sub_ev = sub_paym_event.get_by_event_id(db, event_id)
         if sub_ev is not None:
-            logger.warn(f"This is duplicate paym msg ev_id={val.get('id')}. Ignored")
+            logger.warn(f"This is duplicate paym msg ev_id={event_id}. Ignored")
             return
-        # TODO here insert event state 1 of buisness logic
-        sub_ev = sub_paym_event.create(db, obj_in=SubEventCreate(event_id=val.get("id")))
+
+        sub_ev = sub_paym_event.create(db, obj_in=SubEventCreate(
+                event_id=event_id, 
+                order_id=order_uuid
+            )
+        )
 
         if val.get("reserved"):
             order.update(db, db_obj=o, obj_in={"money_reserved": True})
             logger.info(f'Money reserved')
         elif val.get("refunded"):
             # check here if refunding was successfully finished
-            order.update(db, db_obj=o, obj_in={"money_fail": True})
-            pass
+            order.update(db, db_obj=o, obj_in={"money_reserved": False})
         else:
             cancel_order = True
             order.update(db, db_obj=o, obj_in={"money_fail": True})
             logger.info(f'Balance is insufficient')
-        # TODO here insert event state 2 of buisness logic
+
     elif val.get("name") == "logistic":
-        logger.info(f'enter to logistic')
-        sub_ev = sub_logis_event.get_by_event_id(db, val.get("id"))
+        sub_ev = sub_logis_event.get_by_event_id(db, event_id)
         if sub_ev is not None:
-            logger.warn(f"This is duplicate logistic msg ev_id={val.get('id')}. Ignored")
+            logger.warn(f"This is duplicate logistic msg ev_id={event_id}. Ignored")
             return
-        sub_ev = sub_logis_event.create(db, obj_in=SubEventCreate(event_id=val.get("id")))
+        sub_ev = sub_logis_event.create(db, obj_in=SubEventCreate(
+                event_id=event_id,
+                order_id=order_uuid
+            )
+        )
 
         if val.get("reserved"):
             order.update(db, db_obj=o, obj_in={"courier_reserved": True})
             logger.info(f'Courier reserved')
         elif val.get("canceled"):
-            order.update(db, db_obj=o, obj_in={"courier_fail": True})
+            order.update(db, db_obj=o, obj_in={"courier_reserved": False})
             logger.info(f'Courier is canceled')
         else:
             cancel_order = True
@@ -94,11 +106,11 @@ def dispatch_msgs(msg):
             logger.info(f'There is no available courier')
 
     if cancel_order:
-        pub_ev  = pub_event.create(db, obj_in=None)
+        pub_ev  = pub_event.create(db, obj_in=PubEventCreate(order_id=order_uuid))
         cancel_order = {
             "name" : "order",
             "user_id": val.get("user_id"),
-            "order_uuid": val.get("order_uuid"),
+            "order_uuid": order_uuid,
             "canceled": True,
             "id": pub_ev.id
         }

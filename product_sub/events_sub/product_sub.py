@@ -32,21 +32,22 @@ def dispatch_msgs(msg):
     val = json.loads(msg.value())
 
     if val.get("name") == "order":
-        sub_ev = sub_event.get_by_event_id(db, val.get("id"))
+        event_id = val.get("id")
+        sub_ev = sub_event.get_by_event_id(db, event_id)
         if sub_ev is not None:
             logger.warn("This is duplicate. Ignored")
             return
         order_uuid = val.get("order_uuid")
-        sub_ev = sub_event.create(db, obj_in=SubEventCreate(event_id=val.get("id"), 
+        sub_ev = sub_event.create(db, obj_in=SubEventCreate(event_id=event_id, 
                                                             order_id=order_uuid))
         
         if val.get("canceled"):
             ''' cancel goods reservation here for order_uuid... '''
-            logger.error(f'Reservation for order {val.get("order_uuid")} canceled')
+            logger.error(f'Reservation for order {order_uuid} canceled')
             reserve_log.create_cancel_if_not_exists(
                 order_uuid,
                 obj_in=ReserveCreate(
-                    order_event_id=val.get("id"),
+                    order_event_id=event_id,
                     order_id=order_uuid,
                     cancel=True,
                     state=ProdReserveState.EVENT_COMMIT,
@@ -62,11 +63,11 @@ def dispatch_msgs(msg):
             "user_id": val.get("user_id"),
             "reserved": [],
         }
-        logger.info(f' id={val.get("id")} , order_uuid={order_uuid}')
+        logger.info(f' id={event_id} , order_uuid={order_uuid}')
         cnt_full, cnt_fail = 0, 0
         
         cnt_full, cnt_fail  = stock_utils.reserve_product(
-            val.get("id"),
+            event_id,
             order_uuid, 
             val.get("products", []),
             answ_msg
@@ -80,11 +81,11 @@ def dispatch_msgs(msg):
             answ_msg["state"] = prod_reserve_msg(ProdReserveState.PARTIALLY)
 
         sub_ev = sub_event.update(db, db_obj=sub_ev, obj_in=SubEventCreate(
-                event_id = val.get("id"), 
-                order_id = val.get("order_uuid")
+                event_id = event_id, 
+                order_id = order_uuid
             )
         )
-        pub_ev  = pub_event.create(db, obj_in=PubEventCreate(order_id=val.get("order_uuid")))
+        pub_ev  = pub_event.create(db, obj_in=PubEventCreate(order_id=order_uuid))
         answ_msg["id"] = pub_ev.id
         send_message(p, "product", answ_msg)
 
