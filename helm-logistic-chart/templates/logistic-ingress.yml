@@ -19,3 +19,11 @@ spec:
               number: {{ .Values.logisticServer.port }}
         path: /api/v1/logistic/
         pathType: Prefix
+
+      - backend:
+          service:
+            name: {{ .Release.Name }}
+            port:
+              number: {{ .Values.logisticServer.port }}
+        path: /api/v1/courier/
+        pathType: Prefix
