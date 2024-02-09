@@ -8,7 +8,6 @@ from schemas.sub_event import SubEventCreate
 from schemas.pub_event import PubEventCreate
 from crud import order
 from models import Order
-from schemas.order import OrderUpdate
 from utils import get_settings
 from utils.log import get_console_logger
 from db.session import SessionLocal
@@ -32,6 +31,8 @@ def dispatch_msgs(msg):
     event_id = val.get("id")
     cancel_order = False
 
+    logger.info(f'')    # gap for readability
+
     if val.get("name") == "product":
         sub_ev = sub_prod_event.get_by_event_id(db, event_id)
         if sub_ev is not None:
@@ -43,21 +44,20 @@ def dispatch_msgs(msg):
                 order_id=order_uuid
             )
         )
-        
         at_least_one_reserved = False
         for prod in val.get("reserved", []):
-            if prod.get("amount") > 0:
+            if prod.get("amount", 0) > 0:
                 at_least_one_reserved = True
                 break
         if at_least_one_reserved:
-            order.update(db, db_obj=o, obj_in={"goods_reserved": True})
-            logger.info(f'at least one good reserved')
-        # TODO
-        # elif goods-returned-to-stock 
-        #   pass
+            o =order.update(db, db_obj=o, obj_in={"goods_reserved": True})
+            logger.info(f'{val.get("state")}')
+        elif val.get("canceled"):
+            o =order.update(db, db_obj=o, obj_in={"goods_reserved": False})
+            logger.info(f'Goods are canceled')
         else:
             cancel_order = True
-            order.update(db, db_obj=o, obj_in={"goods_fail": True})
+            o =order.update(db, db_obj=o, obj_in={"goods_fail": True})
             logger.info(f'All goods in the order are out of stock')
 
     elif val.get("name") == "payment":
@@ -71,16 +71,15 @@ def dispatch_msgs(msg):
                 order_id=order_uuid
             )
         )
-
         if val.get("reserved"):
-            order.update(db, db_obj=o, obj_in={"money_reserved": True})
+            o =order.update(db, db_obj=o, obj_in={"money_reserved": True})
             logger.info(f'Money reserved')
         elif val.get("refunded"):
-            # check here if refunding was successfully finished
-            order.update(db, db_obj=o, obj_in={"money_reserved": False})
+            o =order.update(db, db_obj=o, obj_in={"money_reserved": False})
+            logger.info(f'{val.get("state")}')
         else:
             cancel_order = True
-            order.update(db, db_obj=o, obj_in={"money_fail": True})
+            o =order.update(db, db_obj=o, obj_in={"money_fail": True})
             logger.info(f'Balance is insufficient')
 
     elif val.get("name") == "logistic":
@@ -93,16 +92,15 @@ def dispatch_msgs(msg):
                 order_id=order_uuid
             )
         )
-
         if val.get("reserved"):
-            order.update(db, db_obj=o, obj_in={"courier_reserved": True})
+            o =order.update(db, db_obj=o, obj_in={"courier_reserved": True})
             logger.info(f'Courier reserved')
         elif val.get("canceled"):
-            order.update(db, db_obj=o, obj_in={"courier_reserved": False})
+            o =order.update(db, db_obj=o, obj_in={"courier_reserved": False})
             logger.info(f'Courier is canceled')
         else:
             cancel_order = True
-            order.update(db, db_obj=o, obj_in={"courier_fail": True})
+            o = order.update(db, db_obj=o, obj_in={"courier_fail": True})
             logger.info(f'There is no available courier')
 
     if cancel_order:

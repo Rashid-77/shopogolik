@@ -18,7 +18,7 @@ class BalanceUtils():
             order_uuid: str, 
             amount: Decimal, 
             answ_msg: dict
-        ):
+        ) -> bool:
         ''' 
         It reserves the "amount" of money in balance table
         and returns the amount of reserved money, and state of the reservation.
@@ -87,7 +87,7 @@ class BalanceUtils():
             user_id: int, 
             order_uuid: str, 
             answ_msg: dict,
-        ) -> Optional[Balance]:
+        ) -> bool:
         logger.info("cancel_reserved()")
         answ_msg["refunded"] = False
         with SessionLocal() as session:

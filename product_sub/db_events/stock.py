@@ -72,7 +72,6 @@ class StockUtils:
                 for ps in prod_in_stock:
                     logger.info(f' {p_id} ? {ps.prod_id}')
                     if p_id != ps.prod_id:
-                        logger.info(f'  continue')
                         continue
 
                     amount_now = ps.amount
@@ -132,8 +131,9 @@ class StockUtils:
         return cnt_full, cnt_fail
 
 
-    def cancel_reserved(self, order_id: str) -> Optional[Stock]:
+    def cancel_reserved(self, order_id: str, answ_msg: dict) -> bool:
         logger.info("cancel_reserved()")
+        answ_msg["canceled"] = False
         with SessionLocal() as session:
             cancel_cmd = session.query(Reserve) \
                                 .filter(
@@ -147,7 +147,8 @@ class StockUtils:
             
             if cancel_cmd.state == ProdReserveState.CANCELED:
                 logger.warn(f" Found duplicate cancel command for reserved products. {order_id=}")
-                return   # reserve already canceled
+                answ_msg["state"] = 'already canceled'
+                return False  # reserve already canceled
             
             prods = session.query(Reserve) \
                             .filter(
@@ -157,13 +158,24 @@ class StockUtils:
                                     )) \
                             .order_by(Reserve.prod_id) \
                             .all()
+            if not len(prods):
+                msg = '"not canceled" products for "this order" are not found in reserve'
+                answ_msg["state"] = msg
+                logger.warn(msg)
+                return False
             
             prod_ids = [p.prod_id for p in prods]
             prod_in_stock = session.query(Stock) \
                                 .filter(Stock.prod_id.in_(prod_ids)) \
                                 .order_by(Stock.prod_id) \
                                 .all()
-            logger.info(f' {order_id=}')
+            if not len(prod_in_stock):
+                msg = 'no one of "reserve prods list" was not found in stock'
+                answ_msg["state"] = msg
+                logger.warn(msg)
+                return False
+
+            logger.debug(f' {order_id=}')
             for p in prods:
                 for ps in prod_in_stock:
                     if p.prod_id != ps.prod_id:
@@ -178,14 +190,16 @@ class StockUtils:
             session.add_all(prod_in_stock)
             session.add(cancel_cmd)
             session.commit()
+            answ_msg["canceled"] = True
+            answ_msg["state"] = "reservation canceled"
             # check
             prod_in_stock = session.query(Stock) \
                                 .filter(Stock.prod_id.in_(prod_ids)) \
                                 .order_by(Stock.prod_id) \
                                 .all()
             for p in prod_in_stock:
-                logger.info(f' stock_sql: {p.prod_id=}, now={p.amount}')
-            return
+                logger.debug(f' stock_sql: {p.prod_id=}, now={p.amount}')
+            return True
 
 
 stock_utils = StockUtils()

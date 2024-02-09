@@ -41,6 +41,12 @@ def dispatch_msgs(msg):
         sub_ev = sub_event.create(db, obj_in=SubEventCreate(event_id=event_id, 
                                                             order_id=order_uuid))
         
+        answ_msg = {
+            "name" : "product", 
+            "order_uuid": order_uuid, 
+            "user_id": val.get("user_id"),
+            "reserved": [],
+        }
         if val.get("canceled"):
             ''' cancel goods reservation here for order_uuid... '''
             logger.error(f'Reservation for order {order_uuid} canceled')
@@ -53,38 +59,32 @@ def dispatch_msgs(msg):
                     state=ProdReserveState.EVENT_COMMIT,
                 )
             )
-            stock_utils.cancel_reserved(order_uuid)
+            res = stock_utils.cancel_reserved(order_uuid, answ_msg)
             # reserve_log.update()
-            return
-        
-        answ_msg = {
-            "name" : "product", 
-            "order_uuid": order_uuid, 
-            "user_id": val.get("user_id"),
-            "reserved": [],
-        }
-        logger.info(f' id={event_id} , order_uuid={order_uuid}')
-        cnt_full, cnt_fail = 0, 0
-        
-        cnt_full, cnt_fail  = stock_utils.reserve_product(
-            event_id,
-            order_uuid, 
-            val.get("products", []),
-            answ_msg
-        )
-        
-        if cnt_full == len(val.get("products")):
-            answ_msg["state"] = prod_reserve_msg(ProdReserveState.RESERVED)
-        elif cnt_fail == len(val.get("products")):
-            answ_msg["state"] = prod_reserve_msg(ProdReserveState.OUT_OF_STOCK)
-        else:
-            answ_msg["state"] = prod_reserve_msg(ProdReserveState.PARTIALLY)
+            if not res:
+                return
+        else:        
+            logger.info(f' id={event_id} , order_uuid={order_uuid}')
 
-        sub_ev = sub_event.update(db, db_obj=sub_ev, obj_in=SubEventCreate(
-                event_id = event_id, 
-                order_id = order_uuid
+            cnt_full, cnt_fail  = stock_utils.reserve_product(
+                event_id,
+                order_uuid, 
+                val.get("products", []),
+                answ_msg
             )
-        )
+            
+            if cnt_full == len(val.get("products")):
+                answ_msg["state"] = prod_reserve_msg(ProdReserveState.RESERVED)
+            elif cnt_fail == len(val.get("products")):
+                answ_msg["state"] = prod_reserve_msg(ProdReserveState.OUT_OF_STOCK)
+            else:
+                answ_msg["state"] = prod_reserve_msg(ProdReserveState.PARTIALLY)
+
+            sub_ev = sub_event.update(db, db_obj=sub_ev, obj_in=SubEventCreate(
+                    event_id = event_id, 
+                    order_id = order_uuid
+                )
+            )
         pub_ev  = pub_event.create(db, obj_in=PubEventCreate(order_id=order_uuid))
         answ_msg["id"] = pub_ev.id
         send_message(p, "product", answ_msg)
