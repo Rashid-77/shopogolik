@@ -1,13 +1,11 @@
-import random
-
 from confluent_kafka import Producer
 
 from crud.crud_pub_event import pub_event
 from db.session import SessionLocal
 from events_pub.utils import send_message
 from logger import logger
-from models.order import Order
 from schemas.pub_event import PubEventCreate
+from schemas.order_info import OrderInfoCreate
 from utils import get_settings
 
 logger.info('Product started')
@@ -18,7 +16,7 @@ p = Producer({'bootstrap.servers': kafka_url})
 db = SessionLocal()
 
 
-def publish_order_created(order: Order):
+def publish_order_created(order: OrderInfoCreate):
     '''
     When user submit order, this event publicates then:
     - product service have to reserve goods in warehouse if their quantity is sufficient
@@ -26,20 +24,14 @@ def publish_order_created(order: Order):
     - logistic service have to check if address is accessible for the courier and
       have to reserve courier at ponted time
     '''
-    # TODO change products to the real data from cart
-    products = [
-        {"prod_id": 1, "amount": random.randint(1, 20)},
-        {"prod_id": 2, "amount": random.randint(1, 5)},
-    ]
-    deliv_addr = "Some addres"  # TODO get it from db table
     order_msg = {
         "name" : "order",
         "order_uuid": order.uuid.hex, 
         "user_id": order.userId,
-        "deliv_t_from": "2024-03-01 10:00:00",
-        "deliv_t_to": "2024-03-01 12:00:00",
-        "deliv_addr": deliv_addr,
-        "products": products,
+        "deliv_t_from": order.deliv_t_from.strftime("%Y-%d-%m, %H:%M:%S"),
+        "deliv_t_to": order.deliv_t_to.strftime("%Y-%d-%m, %H:%M:%S"),
+        "deliv_addr": order.deliv_addr,
+        "products": order.products,
         "to_pay": "13"
     }
     pub_ev  = pub_event.create(db, obj_in=PubEventCreate(order_id=order.uuid.hex))

@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 # Shared properties
 class OrderBase(BaseModel):
     uuid: Optional[UUID] = None
-    userId: int
+    userId: Optional[int] = None
     goods_reserved: bool = Field(default=False)
     money_reserved: bool = Field(default=False)
     courier_reserved: bool = Field(default=False)
@@ -32,6 +32,9 @@ class OrderInDBBase(OrderBase):
 
     # class Config:
     #     orm_mode = True
+
+class OrderFind(OrderInDBBase):
+    uuid: UUID
 
 
 # Additional properties to return via API

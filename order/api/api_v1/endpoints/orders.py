@@ -20,7 +20,7 @@ REQUEST_TIME_BACKET = Histogram('request_latency_seconds', 'Time spent processin
 # TODO change sync prometeus client to async
 # @REQUEST_TIME_BACKET.labels(endpoint='/order').time()
 async def create_order(
-    order_in: schemas.OrderCreate,
+    order_in: schemas.OrderInfoCreate,
     db: Session = Depends(deps.get_db),
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
@@ -33,14 +33,15 @@ async def create_order(
             status_code=400,
             detail="A order with same uuid already exists.",
         )
-    order = crud.order.create(db, obj_in=order_in, user_id=1)#current_user.id)
-    publish_order_created(order)
-    logger.info("order pub in kafka")
+    order_state = schemas.OrderCreate(uuid=order_in.uuid)
+    order = crud.order.create(db, obj_in=order_state, user_id=current_user.id)
+    publish_order_created(order_in)
     return order
 
 
 @router.get("/{order_uuid}", response_model=schemas.Order)
-@REQUEST_TIME_BACKET.labels(endpoint='/order').time()
+# TODO change sync prometeus client to async
+#@REQUEST_TIME_BACKET.labels(endpoint='/order').time()
 async def read_order_by_id(
     order_uuid: UUID,
     current_user: models.User = Depends(deps.get_current_active_user),
