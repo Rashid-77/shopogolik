@@ -26,13 +26,10 @@ class CRUDCourier(CRUDBase[Courier, CourierCreate, CourierUpdate]):
                 ).offset(offset).limit(limit).all()
 
     def create(self, db: Session, *, user_id: int) -> Courier:
-        logger.info("create()")
         db_obj = Courier(courier_id = user_id)
-        logger.info(f" {db_obj=}")
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
-        logger.info(f" {db_obj=}")
         return db_obj
 
     def update(
@@ -45,7 +42,7 @@ class CRUDCourier(CRUDBase[Courier, CourierCreate, CourierUpdate]):
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
     def remove(self, db: Session, *, user_id: int) -> Courier:
-        obj = db.query(Courier).filter(Courier.user_id == user_id).first()
+        obj = db.query(Courier).filter(Courier.courier_id == user_id).first()
         if obj is None:
             return None
         db.delete(obj)

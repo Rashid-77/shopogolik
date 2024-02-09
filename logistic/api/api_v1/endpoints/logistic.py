@@ -124,7 +124,7 @@ def delete_courier(
     Delete courier.
     """
     logger.info("delete_courier()")
-    courier = crud.courier.remove(db, courier_id=user_id)
+    courier = crud.courier.remove(db, user_id=user_id)
     if not courier:
         raise HTTPException(status_code=404, detail="Courier not found")
     if current_user.is_superuser:
