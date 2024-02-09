@@ -23,6 +23,9 @@ class BalanceBase(BaseModel):
 class BalanceCreate(BalanceBase):
     depos_uuid: str
 
+class BalanceWithdraw(BalanceBase):
+    withdraw_uuid: str
+    amount: float
 
 # Properties to receive via API on update
 class BalanceUpdate(BalanceBase):
