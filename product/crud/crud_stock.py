@@ -9,12 +9,14 @@ from schemas.stock import StockCreate, StockUpdate
 class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
 
     def get(self, db: Session, id: int) -> Optional[Stock]:
-        return db.query(self.model).filter(self.model.id == id).first()
+        return db.query(Stock).filter(Stock.id == id).first()
+
+    def get_by_prod_id(self, db: Session, prod_id: int) -> Optional[Stock]:
+        return db.query(Stock).filter(Stock.prod_id == prod_id).first()
 
     def create(self, db: Session, *, obj_in: StockCreate) -> Stock:
         db_obj = Stock(
             prod_id = obj_in.prod_id,
-            # updDate = "",
             amount = obj_in.amount,
         )
         db.add(db_obj)
