@@ -1,0 +1,616 @@
+{
+	"info": {
+		"_postman_id": "8b159424-aa4a-42b7-a610-384d603037a3",
+		"name": "m-hw8-test4-No_courier",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "12870437"
+	},
+	"item": [
+		{
+			"name": "login superuser0",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.environment.set('superuser0_token', jsonData.access_token);",
+							"console.log(pm.environment.replaceIn('{{superuser0_token}}'));",
+							"",
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Value is a string and not empty\", function() {",
+							"    pm.response.to.have.jsonBody(\"token_type\", \"bearer\")",
+							"    pm.expect(jsonData.access_token).to.be.a('string').and.not.be.empty",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let superuser0 = \"change@me.please\";",
+							"",
+							"pm.collectionVariables.set('superuser0', superuser0);",
+							"pm.collectionVariables.set('superuser0_email', superuser0);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "{{superuser0}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "change-password",
+							"type": "text"
+						}
+					]
+				},
+				"url": "http://{{BASE_URL}}/api/v1/login"
+			},
+			"response": []
+		},
+		{
+			"name": "create product 1 by superuser",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set('uuid1', require('uuid')())",
+							"let rnd_prod = pm.variables.replaceIn(\"{{$randomProduct}}\") + '-' + pm.variables.replaceIn(\"{{$randomInt}}\")",
+							"pm.collectionVariables.set('prod', rnd_prod);",
+							"pm.collectionVariables.set('prod_price', pm.variables.replaceIn(\"{{$randomPrice}}\"));",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"name\", pm.collectionVariables.get('prod'))",
+							"        .and.have.jsonBody(\"price\", pm.collectionVariables.get('prod_price'))",
+							"        .and.have.jsonBody(\"sku\", pm.collectionVariables.get('uuid1'))",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.environment.set('prod1_id', jsonData.id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{superuser0_token}}"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"sku\": \"{{uuid1}}\",\n    \"name\": \"{{prod}}\",\n    \"price\": \"{{prod_price}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/product/add"
+			},
+			"response": []
+		},
+		{
+			"name": "create product 2 by superuser",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set('uuid1', require('uuid')())",
+							"let rnd_prod = pm.variables.replaceIn(\"{{$randomProduct}}\") + '-' + pm.variables.replaceIn(\"{{$randomInt}}\")",
+							"pm.collectionVariables.set('prod', rnd_prod);",
+							"pm.collectionVariables.set('prod_price', pm.variables.replaceIn(\"{{$randomPrice}}\"));",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"name\", pm.collectionVariables.get('prod'))",
+							"        .and.have.jsonBody(\"price\", pm.collectionVariables.get('prod_price'))",
+							"        .and.have.jsonBody(\"sku\", pm.collectionVariables.get('uuid1'))",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.environment.set('prod2_id', jsonData.id);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{superuser0_token}}"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"sku\": \"{{uuid1}}\",\n    \"name\": \"{{prod}}\",\n    \"price\": \"{{prod_price}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/product/add"
+			},
+			"response": []
+		},
+		{
+			"name": "add product 1 to stock by superuser",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{superuser0_token}}"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"prod_id\": {{prod1_id}},\n    \"amount\": 100\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/stock/product/add"
+			},
+			"response": []
+		},
+		{
+			"name": "add product 2 to stock by superuser",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// pm.test(\"Check message\", function() {",
+							"//     pm.response.to.have.jsonBody(\"userId\", 1)",
+							"// });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{superuser0_token}}"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"prod_id\": {{prod2_id}},\n    \"amount\": 100\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/stock/product/add"
+			},
+			"response": []
+		},
+		{
+			"name": "deposit by superuser",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let depos_uuid = require('uuid')();",
+							"pm.environment.set('depos_uuid1', depos_uuid)",
+							"console.log(depos_uuid);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"balance\", 200)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{superuser0_token}}"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_id\": 1,\n    \"depos_uuid\": \"{{depos_uuid1}}\",\n    \"amount\": \"200\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/balance/deposit"
+			},
+			"response": []
+		},
+		{
+			"name": "remove all couriers from logistic list by superuser",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// pm.test(\"Check message\", function() {",
+							"//     pm.response.to.have.jsonBody(\"userId\", 1)",
+							"// });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{superuser0_token}}"
+					}
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": "http://{{BASE_URL}}/api/v1/logistic/clear-courier-list"
+			},
+			"response": []
+		},
+		{
+			"name": "get free couriers",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{superuser0_token}}"
+					}
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/logistic/free-couriers"
+			},
+			"response": []
+		},
+		{
+			"name": "create order1 by superuser",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let uuid1 = require('uuid')();",
+							"pm.environment.set('uuid1', uuid1)",
+							"console.log(uuid1);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"uuid\", pm.environment.get('uuid1'))",
+							"        .and.have.jsonBody(\"userId\", 1)",
+							"        .and.have.jsonBody(\"goods_reserved\", false)",
+							"        .and.have.jsonBody(\"money_reserved\", false)",
+							"        .and.have.jsonBody(\"courier_reserved\", false)",
+							"        .and.have.jsonBody(\"reserv_user_canceled\", false)",
+							"        .and.have.jsonBody(\"goods_fail\", false)",
+							"        .and.have.jsonBody(\"money_fail\", false)",
+							"        .and.have.jsonBody(\"courier_fail\", false)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{superuser0_token}}"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uuid\": \"{{uuid1}}\",\n    \"userId\": \"1\",\n    \"products\": [\n        {\"prod_id\": {{prod1_id}}, \"amount\": 3},\n        {\"prod_id\": {{prod2_id}}, \"amount\": 5}\n    ],\n    \"deliv_t_from\": \"2024-02-08 13:30:00\",\n    \"deliv_t_to\": \"2024-02-08 20:00:00\",\n    \"deliv_addr\": \"Common city, Main street, 2\",\n    \"total_price\": 15\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/order/create"
+			},
+			"response": []
+		},
+		{
+			"name": "get order state by superuser",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"uuid\", pm.environment.get('uuid1'))",
+							"        .and.have.jsonBody(\"userId\", 1)",
+							"        .and.have.jsonBody(\"goods_reserved\", false)",
+							"        .and.have.jsonBody(\"money_reserved\", false)",
+							"        .and.have.jsonBody(\"courier_reserved\", false)",
+							"        .and.have.jsonBody(\"reserv_user_canceled\", false)",
+							"        .and.have.jsonBody(\"goods_fail\", false)",
+							"        .and.have.jsonBody(\"money_fail\", false)",
+							"        .and.have.jsonBody(\"courier_fail\", true)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{superuser0_token}}"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/order/{{uuid1}}"
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "uuid1",
+			"value": ""
+		},
+		{
+			"key": "prod",
+			"value": ""
+		},
+		{
+			"key": "prod_price",
+			"value": ""
+		},
+		{
+			"key": "depos_uuid1",
+			"value": ""
+		},
+		{
+			"key": "balance",
+			"value": ""
+		},
+		{
+			"key": "withdraw_uuid1",
+			"value": ""
+		},
+		{
+			"key": "user1",
+			"value": ""
+		},
+		{
+			"key": "email_1",
+			"value": ""
+		},
+		{
+			"key": "phone",
+			"value": ""
+		},
+		{
+			"key": "user1_id",
+			"value": ""
+		},
+		{
+			"key": "courier1_id",
+			"value": ""
+		},
+		{
+			"key": "courier2_id",
+			"value": ""
+		}
+	]
+}
