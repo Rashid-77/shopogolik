@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  labels:
+    name: payment-cm
+  name: payment-cm
+data:
+  db_name: "payment_db"

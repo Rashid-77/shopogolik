@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  labels:
+    name: logistic-cm
+  name: logistic-cm
+data:
+  db_name: "logistic_db"

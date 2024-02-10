@@ -17,19 +17,9 @@ class CRUDOrder(CRUDBase[Order, OrderCreate, OrderUpdate]):
         db_obj = Order(
             uuid = obj_in.uuid,
             userId = user_id,
-            amount = obj_in.amount,
-            shipName = obj_in.shipName,
-            shipAddr = obj_in.shipAddr,
-            city = obj_in.city,
-            state = obj_in.state,
-            zip = obj_in.zip,
-            country = obj_in.country,
-            email = obj_in.email,
-            phone = obj_in.phone,
-            tax = obj_in.tax,
-            shiped = False,
-            shipDate = None,
-            trackinNumber = ""
+            goods_reserved = obj_in.goods_reserved,
+            money_reserved = obj_in.money_reserved,
+            courier_reserved = obj_in.courier_reserved,
         )
         db.add(db_obj)
         db.commit()

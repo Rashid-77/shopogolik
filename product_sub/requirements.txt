@@ -1,0 +1,15 @@
+
+fastapi
+bcrypt==4.0.1
+passlib[bcrypt]
+python-jose
+psycopg2-binary
+pydantic-settings
+pydantic[email]
+pydantic-extra-types
+alembic
+sqlalchemy>=2.0
+confluent_kafka
+# dev
+prometheus-client
+pytest

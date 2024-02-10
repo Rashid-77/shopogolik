@@ -1,40 +1,30 @@
-from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field, NameEmail
-from pydantic_extra_types.phone_numbers import PhoneNumber
+from pydantic import BaseModel, Field
+
 
 # Shared properties
 class OrderBase(BaseModel):
     uuid: Optional[UUID] = None
-    userId: int
-    shipName: str
-    shipAddr: str
-    city: str
-    state: str
-    zip: str
-    country: str
-    email: str
-    phone: str
-    tax: float
+    userId: Optional[int] = None
+    goods_reserved: bool = Field(default=False)
+    money_reserved: bool = Field(default=False)
+    courier_reserved: bool = Field(default=False)
+    reserv_user_canceled: bool = Field(default=False)
+    goods_fail: bool = Field(default=False)
+    money_fail: bool = Field(default=False)
+    courier_fail: bool = Field(default=False)
 
 
 # Properties to receive via API on creation
 class OrderCreate(OrderBase):
     uuid: UUID
-    amount: float
 
 
 # Properties to receive via API on update
 class OrderUpdate(OrderBase):
-    amount: float
-
-
-class OrderShip(OrderBase):
-    shiped: bool = Field(default=False)
-    shipDate: datetime
-    trackinNumber: str
+    pass
 
 
 class OrderInDBBase(OrderBase):
@@ -42,6 +32,9 @@ class OrderInDBBase(OrderBase):
 
     # class Config:
     #     orm_mode = True
+
+class OrderFind(OrderInDBBase):
+    uuid: UUID
 
 
 # Additional properties to return via API

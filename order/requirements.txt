@@ -13,6 +13,7 @@ phonenumbers
 tenacity
 alembic
 sqlalchemy>=2.0
+confluent_kafka
 # dev
 prometheus-client
 pytest
