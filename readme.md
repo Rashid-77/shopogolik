@@ -2,7 +2,17 @@
 The goal of this project is to experiments with kubernetes.
 Python3.10, FastApi, Postgress, docker compose V2 are used.
 
-The project consist of authentication service and a user service
+The project consist of: 
+
+- authentication service 
+- user service
+- order service
+- product service
+- payment service
+- logistic service
+
+At this moment Saga pattern realized to make order.
+Order depends on the avialability products in order, enough money on in-shop user account and available courier'
 
 **Deploy to kubernetes cluster**
 
@@ -12,7 +22,7 @@ Then start it:
 
 <code>minikube start</code>
 
-Enalbe ingress
+Enable ingress
 
 <code>minikube addons enable ingress</code>
 
@@ -28,36 +38,69 @@ First install <a href="https://helm.sh/docs/intro/install/"> helm.</a>
 
 From project root run:
 
+<code>helm install kafka helm-kafka-chart/</code>
+
+After kafka-job has done its job, check if really topic were created.
+Go to kafka pod and run 
+
+<code>kafka-topics --bootstrap-server kafka-service:9092 --list</code>
+
+If there is no topics: "order", "product", "payment", "logistic", then create it manually.
+
+For example, to create topic order paste and run in kafka pod:
+
+<code>kafka-topics --bootstrap-server kafka-service:9092 --create --topic order</code>
+
+After all topics created start all other services.
+
 <code>helm install postgres helm-postgres-chart/</code>
 
 <code>helm install auth helm-auth-chart/</code>
 
 <code>helm install shopogolik helm-backend-chart/</code>
 
+<code>helm install postgr-product helm-product-db-chart/</code>
+
+<code>helm install postgr-payment helm-payment-db-chart/</code>
+
+<code>helm install postgr-order helm-order-db-chart/</code>
+
+<code>helm install postgr-logistic helm-logistic-db-chart/</code>
+
+<code>helm install product helm-product-chart/</code>
+
+<code>helm install payment helm-payment-chart/</code>
+
+<code>helm install order helm-order-chart/</code>
+
+<code>helm install logistic helm-logistic-chart/</code>
+
 now you can see its status
 
 <code>helm list</code>
 
-And then check the app using a browser
+Then check the app using a postman collections.
 
-http://arch.homework/docs  
-
-There is a postman test. To use it install newman, then run:
-
-<code>newman run micriservice-hw5.postman_collection.json</code>
+To use postman tests install newman:
 
 **Testing**
 
-To test use newman:
+<code>newman run m-hw8-test1-All-reserved-successfully.postman_collection.json --delay-request 1000 --env-var BASE_URL=arch.homework</code>
 
-<code>newman run micriservice-hw5.postman_collection.json --env-var "BASE_URL=arch.homework"</code>
+<code>newman run m-hw8-test2-No_product.postman_collection.json --delay-request 1000 --env-var BASE_URL=arch.homework</code>
 
+<code>newman run m-hw8-test3-No_money.postman_collection.json --delay-request 1000 --env-var BASE_URL=arch.homework</code>
+
+<code>newman run m-hw8-test4-No_courier.postman_collection.json --delay-request 1000 --env-var BASE_URL=arch.homework</code>
 
 **To shutdown app**:
 
-<code>helm uninstall shopogolik</code>
+Get installed services:
 
-<code>helm uninstall auth</code>
+<code>helm list</code>
 
-<code>helm uninstall postgres</code>
+and shutdown them all.
 
+For example 
+
+<code>helm uninstall shopogolik, order, product</code>
