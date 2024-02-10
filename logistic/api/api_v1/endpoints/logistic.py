@@ -112,6 +112,27 @@ def update_user(
     return cu
 
 
+@router.delete("/clear-courier-list", response_model=str)
+@REQUEST_TIME_BACKET.labels(endpoint='/courier').time()
+def clear_courier_list(
+    db: Session = Depends(deps.get_db),
+    current_user: models.User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Clear courier list.
+    """
+    logger.info("clear_courier_list()")
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
+    
+    couriers = [c.courier_id for c in db.query(models.Courier).all()]
+    logger.info(f'{couriers=}')
+    for c in couriers:
+        res = crud.courier.remove(db, user_id=c)
+        logger.info(f'  ! removed {res=}')
+    return "All couriers were removed"
+
+
 @router.delete("/{user_id}", response_model=schemas.Courier)
 @REQUEST_TIME_BACKET.labels(endpoint='/courier').time()
 def delete_courier(
