@@ -27,7 +27,6 @@ db = SessionLocal()
 def dispatch_msgs(msg):
     val = json.loads(msg.value())
     order_uuid = val.get("order_uuid")
-    o: Order = order.get(db, order_uuid)
     event_id = val.get("id")
     cancel_order = False
 
@@ -49,6 +48,7 @@ def dispatch_msgs(msg):
             if prod.get("amount", 0) > 0:
                 at_least_one_reserved = True
                 break
+        o: Order = order.get(db, order_uuid)
         if at_least_one_reserved:
             o =order.update(db, db_obj=o, obj_in={"goods_reserved": True})
             logger.info(f'{val.get("state")}')
@@ -71,6 +71,7 @@ def dispatch_msgs(msg):
                 order_id=order_uuid
             )
         )
+        o: Order = order.get(db, order_uuid)
         if val.get("reserved"):
             o =order.update(db, db_obj=o, obj_in={"money_reserved": True})
             logger.info(f'Money reserved')
@@ -92,6 +93,7 @@ def dispatch_msgs(msg):
                 order_id=order_uuid
             )
         )
+        o: Order = order.get(db, order_uuid)
         if val.get("reserved"):
             o =order.update(db, db_obj=o, obj_in={"courier_reserved": True})
             logger.info(f'Courier reserved')

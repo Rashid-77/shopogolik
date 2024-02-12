@@ -7,7 +7,7 @@
 	},
 	"item": [
 		{
-			"name": "login superuser0 Copy",
+			"name": "login superuser0",
 			"event": [
 				{
 					"listen": "test",
@@ -71,13 +71,13 @@
 			"response": []
 		},
 		{
-			"name": "create product 1 by superuser Copy",
+			"name": "create product 1 by superuser",
 			"event": [
 				{
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"pm.collectionVariables.set('uuid1', require('uuid')())",
+							"pm.collectionVariables.set('sku1', require('uuid')())",
 							"let rnd_prod = pm.variables.replaceIn(\"{{$randomProduct}}\") + '-' + pm.variables.replaceIn(\"{{$randomInt}}\")",
 							"pm.collectionVariables.set('prod', rnd_prod);",
 							"pm.collectionVariables.set('prod_price', pm.variables.replaceIn(\"{{$randomPrice}}\"));",
@@ -98,7 +98,7 @@
 							"pm.test(\"Check message\", function() {",
 							"    pm.response.to.have.jsonBody(\"name\", pm.collectionVariables.get('prod'))",
 							"        .and.have.jsonBody(\"price\", pm.collectionVariables.get('prod_price'))",
-							"        .and.have.jsonBody(\"sku\", pm.collectionVariables.get('uuid1'))",
+							"        .and.have.jsonBody(\"sku\", pm.collectionVariables.get('sku1'))",
 							"});",
 							"",
 							"var jsonData = JSON.parse(responseBody);",
@@ -119,7 +119,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"sku\": \"{{uuid1}}\",\n    \"name\": \"{{prod}}\",\n    \"price\": \"{{prod_price}}\"\n}",
+					"raw": "{\n    \"sku\": \"{{sku1}}\",\n    \"name\": \"{{prod}}\",\n    \"price\": \"{{prod_price}}\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -131,13 +131,13 @@
 			"response": []
 		},
 		{
-			"name": "create product 2 by superuser Copy",
+			"name": "create product 2 by superuser",
 			"event": [
 				{
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"pm.collectionVariables.set('uuid1', require('uuid')())",
+							"pm.collectionVariables.set('sku2', require('uuid')())",
 							"let rnd_prod = pm.variables.replaceIn(\"{{$randomProduct}}\") + '-' + pm.variables.replaceIn(\"{{$randomInt}}\")",
 							"pm.collectionVariables.set('prod', rnd_prod);",
 							"pm.collectionVariables.set('prod_price', pm.variables.replaceIn(\"{{$randomPrice}}\"));",
@@ -158,7 +158,7 @@
 							"pm.test(\"Check message\", function() {",
 							"    pm.response.to.have.jsonBody(\"name\", pm.collectionVariables.get('prod'))",
 							"        .and.have.jsonBody(\"price\", pm.collectionVariables.get('prod_price'))",
-							"        .and.have.jsonBody(\"sku\", pm.collectionVariables.get('uuid1'))",
+							"        .and.have.jsonBody(\"sku\", pm.collectionVariables.get('sku2'))",
 							"});",
 							"",
 							"var jsonData = JSON.parse(responseBody);",
@@ -180,7 +180,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"sku\": \"{{uuid1}}\",\n    \"name\": \"{{prod}}\",\n    \"price\": \"{{prod_price}}\"\n}",
+					"raw": "{\n    \"sku\": \"{{sku2}}\",\n    \"name\": \"{{prod}}\",\n    \"price\": \"{{prod_price}}\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -192,7 +192,7 @@
 			"response": []
 		},
 		{
-			"name": "add product 1 to stock by superuser Copy",
+			"name": "add product 1 to stock by superuser",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -239,7 +239,7 @@
 			"response": []
 		},
 		{
-			"name": "add product 2 to stock by superuser Copy",
+			"name": "add product 2 to stock by superuser",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -289,7 +289,7 @@
 			"response": []
 		},
 		{
-			"name": "get balance by superuser0 Copy",
+			"name": "get balance by superuser0",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -550,6 +550,22 @@
 		},
 		{
 			"key": "courier2_id",
+			"value": ""
+		},
+		{
+			"key": "superuser0",
+			"value": ""
+		},
+		{
+			"key": "superuser0_email",
+			"value": ""
+		},
+		{
+			"key": "sku1",
+			"value": ""
+		},
+		{
+			"key": "sku2",
 			"value": ""
 		}
 	]
