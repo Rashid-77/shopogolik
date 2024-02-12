@@ -43,7 +43,7 @@ def dispatch_msgs(msg):
             "user_id": val.get("user_id")
         }
 
-        if val.get("canceled"):
+        if val.get("state") == "canceling":
             success = balance_utils.cancel_reserved(
                 event_id,
                 val.get("user_id"),
@@ -54,7 +54,7 @@ def dispatch_msgs(msg):
 
             if not success:
                 return
-        else:
+        elif val.get("state") == "new_order":
             success = balance_utils.reserve_money(
                 event_id, 
                 val.get("user_id"), 
@@ -64,7 +64,9 @@ def dispatch_msgs(msg):
             )
             if not success and answer_msg['state'] == 'already reserved':
                 return
-
+        else:
+            return
+        
         pub_ev  = pub_event.create(db, obj_in=PubEventCreate(order_id=order_uuid))
         answer_msg["id"] = pub_ev.id
         send_message(p, "payment", answer_msg)

@@ -13,17 +13,6 @@ class CRUDNotify(CRUDBase[Notify, NotifyCreate, NotifyUpdate]):
     def get_by_order_id(self, db: Session, order_uuid: UUID) -> Optional[Notify]:
         return db.query(Notify).filter(Notify.order_uuid == order_uuid).all()
 
-    # def get_free(self, db: Session, offset: int, limit: int) -> Optional[Notify]:
-    #     return db.query(Notify) \
-    #             .filter(
-    #                 and_(
-    #                     Courier.from_t == datetime.min, 
-    #                     Courier.to_t == datetime.min,
-    #                     Courier.order_uuid == "",
-    #                     Courier.deliv_addr == "",
-    #                     )
-    #             ).offset(offset).limit(limit).all()
-
     def create(self, db: Session, *, obj_in: NotifyCreate) -> Notify:
         db_obj = Notify(
             order_uuid = obj_in.order_uuid,
