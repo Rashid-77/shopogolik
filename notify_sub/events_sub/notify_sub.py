@@ -17,11 +17,11 @@ from utils.log import get_console_logger
 
 CONSUMER_GROUP = 'notify_group'
 
-MSG_ORDER_PAID = '''Dear customer, you just have paid your order. 
-                    Your goods will be delivered by our couriers.'''
+MSG_ORDER_PAID = f'Dear customer, you just have paid your order. '\
+                f'Your goods will be delivered by our couriers.'
 
-MSG_ORDER_CANCELED = '''Dear customer, your order canceled. 
-                        You will receive your money back.'''
+MSG_ORDER_CANCELED = f'Dear customer, your order canceled. '\
+                    f'You will receive your money back.'
 
 logger = get_console_logger(__name__)
 logger.info("Notify_sub started")

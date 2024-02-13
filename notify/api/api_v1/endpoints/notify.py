@@ -36,23 +36,23 @@ def get_notify(
     raise HTTPException(status_code=400, detail="The user doesn't have enough privilege")
 
 
-@router.get("/order/{order_uuid}", response_model=List[schemas.Notify])
+@router.get("/order/{order_uuid}", response_model=schemas.Notify)
 @REQUEST_TIME_BACKET.labels(endpoint='courier').time()
-def get_notifies(
+def get_notify(
     order_uuid: UUID,
     db: Session = Depends(deps.get_db),
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
-    Get notifies by order_uuid.
+    Get last notify by order_uuid.
     """
     logger.info("get_notifies()")
-    notifies = crud.notify.get_by_order_id(db, order_uuid)
-    if not len[notifies]:
+    notify = crud.notify.get_by_order_id(db, order_uuid)
+    if notify is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
     
-    if notifies[0].client_id == current_user.id or current_user.is_superuser:
-        return notifies
+    if notify.client_id==current_user.id or current_user.is_superuser:
+        return notify
 
     raise HTTPException(status_code=400, detail="The user doesn't have enough privilege")
 

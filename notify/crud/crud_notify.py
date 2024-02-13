@@ -11,7 +11,10 @@ from logger import logger
 class CRUDNotify(CRUDBase[Notify, NotifyCreate, NotifyUpdate]):
     
     def get_by_order_id(self, db: Session, order_uuid: UUID) -> Optional[Notify]:
-        return db.query(Notify).filter(Notify.order_uuid == order_uuid).all()
+        return db.query(Notify) \
+            .filter(Notify.order_uuid == order_uuid) \
+            .order_by(Notify.created_at.desc()) \
+            .first()
 
     def create(self, db: Session, *, obj_in: NotifyCreate) -> Notify:
         db_obj = Notify(
