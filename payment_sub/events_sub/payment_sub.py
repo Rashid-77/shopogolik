@@ -1,29 +1,25 @@
-from decimal import Decimal
 import json
+from decimal import Decimal
 
-from confluent_kafka import Producer, Consumer, KafkaException, KafkaError
 from crud.crud_pub_event import pub_event
 from crud.crud_sub_event import sub_event
 from schemas.sub_event import SubEventCreate
 from schemas.pub_event import PubEventCreate
-from utils import get_settings
 from utils.log import get_console_logger
 from db.session import SessionLocal
-from events_sub.utils import send_message
 from events_sub.db_utils import balance_utils
-
-CONSUMER_GROUP = 'payment_group'
-
 
 logger = get_console_logger(__name__)
 logger.info("Payment_sub started")
 
-kafka_url = get_settings().broker_url
-p = Producer({'bootstrap.servers': kafka_url})
 db = SessionLocal()
 
 
-def dispatch_msgs(msg):
+def process_payment(msg):
+    ''' 
+    Reserve money or cancel reservation
+    If message sucessfully processed answer will be sent
+    '''
     val = json.loads(msg.value())
 
     if val.get("name") == "order":
@@ -50,10 +46,10 @@ def dispatch_msgs(msg):
                 order_uuid, 
                 answ_msg=answer_msg
             )
-            logger.error(f'Reservation for order {order_uuid} canceled')
-
             if not success:
                 return
+            logger.error(f'Reservation for order {order_uuid} canceled')
+
         elif val.get("state") == "new_order":
             success = balance_utils.reserve_money(
                 event_id, 
@@ -69,38 +65,5 @@ def dispatch_msgs(msg):
         
         pub_ev  = pub_event.create(db, obj_in=PubEventCreate(order_id=order_uuid))
         answer_msg["id"] = pub_ev.id
-        send_message(p, "payment", answer_msg)
-
-
-def main_consume_loop():
-    logger.info("basic_consume_loop()")
-    try:
-        c = Consumer({
-            'bootstrap.servers': kafka_url,
-            'group.id': CONSUMER_GROUP,
-            'auto.offset.reset': 'earliest'
-        })
-
-        c.subscribe(['order'])
-        while True:
-            # TODO change to poll consume to the batch consume in the future
-            msg = c.poll(0.5)
-
-            if msg is None: 
-                continue
-
-            if msg.error():
-                if msg.error().code() == KafkaError._PARTITION_EOF:
-                    # End of partition event
-                    logger.error('%% %s [%d] reached end at offset %d\n' %
-                                     (msg.topic(), msg.partition(), msg.offset()))
-                elif msg.error():
-                    raise KafkaException(msg.error())
-            else:
-                logger.info(f'<--- Received: t={msg.topic()}, p={msg.partition()}, o={msg.offset()}')
-                logger.info(f'     msg:{json.loads(msg.value())}')
-                dispatch_msgs(msg)
-    finally:
-        # Close down consumer to commit final offsets.
-        logger.error('Consumer closed down')
-        c.close()
+    
+        return answer_msg
