@@ -52,19 +52,19 @@ def process_user(msg):
                 disabled = val.get("disabled"),
                 is_superuser = val.get("is_superuser")
             ))
-            
             if not u:
                 return
             answer_msg["state"] = "User created"
-            logger.error(f'user id={user_id} created')
+            logger.info(f'user id={user_id} created')
 
         elif state == "update_user":
             # TODO update user
             answer_msg["state"] = "Not implemented"
-            logger.debug(f'"update_user" Not implemented')
+            logger.warn(f'"update_user" Not implemented')
         else:
             logger.error(f' Unprocessed state = {val.get("state")}')
             return
+        
         ev = PubUserEventCreate(user_id=user_id, state=answer_msg["state"])
         pub_ev  = pub_user_event.create(db, obj_in=ev)
         answer_msg["id"] = pub_ev.id
