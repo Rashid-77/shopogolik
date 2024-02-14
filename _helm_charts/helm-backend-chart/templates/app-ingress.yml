@@ -17,12 +17,5 @@ spec:
             name: {{ .Release.Name}}
             port:
               number: {{ .Values.server.port }}
-        path: /api/v1/user/me
+        path: /api/v1/path-not-exist
         pathType: Exact
-      - backend:
-          service:
-            name: {{ .Release.Name}}
-            port:
-              number: {{ .Values.server.port }}
-        path: /api/v1/user/
-        pathType: Prefix
