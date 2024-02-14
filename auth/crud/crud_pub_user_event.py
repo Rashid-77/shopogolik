@@ -46,4 +46,4 @@ class CRUDPubUserEvent(CRUDBase[PubUserEvent, PubUserEventCreate, PubUserEventUp
         return db.query(PubUserEvent).filter(PubUserEvent.id == id).first()
 
 
-pub_event = CRUDPubUserEvent(PubUserEvent)
+pub_user_event = CRUDPubUserEvent(PubUserEvent)
