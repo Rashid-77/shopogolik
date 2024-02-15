@@ -25,7 +25,7 @@ def upgrade() -> None:
         sa.Column("order_uuid", sa.Uuid(), nullable=True),
         sa.Column("client_id", 
                   sa.Integer(), 
-                  sa.ForeignKey('User.id', ondelete='CASCADE'),
+                  sa.ForeignKey('User.user_id', ondelete='CASCADE'),
                   nullable=True),
         sa.Column("msg", sa.Text(), nullable=True),
         sa.Column("delivered", sa.Boolean(), nullable=True),

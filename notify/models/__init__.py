@@ -1,2 +1,2 @@
-from .user import User
+from .user_lim import User
 from .notify import Notify

@@ -3,7 +3,7 @@ from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import relationship
 
 from db import Base
-from models.user import User
+from models.user_lim import User
 
 class Notify(Base):
     id = Column(Integer, primary_key=True)
