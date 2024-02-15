@@ -56,6 +56,7 @@ def dispatch_msgs(msg):
         else:
             cancel_order = True
             o =order.update(db, db_obj=o, obj_in={"goods_fail": True})
+            fail_reason = 'goods out of stock'
             logger.info(f'All goods in the order are out of stock')
 
     elif val.get("name") == "payment":
@@ -79,6 +80,7 @@ def dispatch_msgs(msg):
         else:
             cancel_order = True
             o =order.update(db, db_obj=o, obj_in={"money_fail": True})
+            fail_reason = 'balance is insufficient'
             logger.info(f'Balance is insufficient')
 
     elif val.get("name") == "logistic":
@@ -101,6 +103,7 @@ def dispatch_msgs(msg):
         else:
             cancel_order = True
             o = order.update(db, db_obj=o, obj_in={"courier_fail": True})
+            fail_reason = 'no available courier'
             logger.info(f'There is no available courier')
 
     if cancel_order:
@@ -110,6 +113,7 @@ def dispatch_msgs(msg):
             "user_id": val.get("user_id"),
             "order_uuid": order_uuid,
             "state": "canceling",
+            "reason": fail_reason or '',
             "id": pub_ev.id
         }
         send_message(p, 'order', cancel_order)
