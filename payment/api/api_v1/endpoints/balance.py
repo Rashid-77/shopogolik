@@ -90,6 +90,5 @@ def read_balance(
         acc = crud.money_account.get_balance(db, user_id=user_id)
         if acc is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
-        logger.info(f"{acc=}, {type(acc)=}")
         return acc
     raise HTTPException(status_code=400, detail="The user doesn't have enough privilege")

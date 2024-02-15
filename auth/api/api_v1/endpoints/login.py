@@ -102,5 +102,6 @@ def authenticate(
     response.headers["X-Last-Name"] = str(current_user.last_name)
     response.headers["X-Email"] = str(current_user.email)
     response.headers["X-Phone"] = str(current_user.phone)
+    response.headers["X-Superuser"] = str(current_user.is_superuser)
 
     return response
