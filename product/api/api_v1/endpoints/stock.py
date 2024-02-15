@@ -87,9 +87,10 @@ def delete_product_from_stock(
     Delete product from stock.
     """
     logger.info("delete_product_from_stock()")
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
     stock = crud.stock.remove(db, id=stock_id)
     if not stock:
         raise HTTPException(status_code=404, detail="Product details not found in stock")
-    if current_user.is_superuser:
-        return stock
-    raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
+    return stock
+    
