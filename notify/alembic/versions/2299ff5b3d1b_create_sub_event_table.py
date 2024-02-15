@@ -1,7 +1,7 @@
 """create_sub_event_table
 
 Revision ID: 2299ff5b3d1b
-Revises: 58b6c882d197
+Revises: 5cbac853b230
 Create Date: 2024-02-07 12:12:05.113503
 
 """
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = '2299ff5b3d1b'
-down_revision: Union[str, None] = 'acdd1da395cb'
+down_revision: Union[str, None] = '5cbac853b230'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

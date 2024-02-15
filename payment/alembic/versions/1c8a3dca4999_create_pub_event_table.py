@@ -1,7 +1,7 @@
 """create pub_event_table
 
 Revision ID: 1c8a3dca4999
-Revises: ce4aa0abe98c
+Revises: acdd1da395cb
 Create Date: 2024-01-28 15:24:49.956186
 
 """
