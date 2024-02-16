@@ -311,7 +311,10 @@
 							"pm.test(\"Check message\", function() {",
 							"    pm.response.to.have.jsonBody(\"prod_id\", pm.environment.get('prod1_id'))",
 							"        .and.have.jsonBody(\"amount\", 100)",
-							"});"
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"console.log(\"prod_id1=\" + jsonData.prod_id + \", amount=\" + jsonData.amount)"
 						],
 						"type": "text/javascript"
 					}
@@ -353,7 +356,10 @@
 							"pm.test(\"Check message\", function() {",
 							"    pm.response.to.have.jsonBody(\"prod_id\", pm.environment.get('prod2_id'))",
 							"        .and.have.jsonBody(\"amount\", 100)",
-							"});"
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"console.log(\"prod_id2=\" + jsonData.prod_id + \", amount=\" + jsonData.amount)"
 						],
 						"type": "text/javascript"
 					}
@@ -707,7 +713,10 @@
 							"",
 							"pm.test(\"Check message\", function() {",
 							"    pm.response.to.have.jsonBody(\"user_id\", pm.environment.get('user_id'))",
-							"});"
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"console.log(\"user_id=\" + jsonData.user_id + \", deposit=\" + jsonData.amount + \", balance=\" + jsonData.balance)"
 						],
 						"type": "text/javascript"
 					}
@@ -759,7 +768,10 @@
 							"",
 							"// pm.test(\"Check message\", function() {",
 							"//     pm.response.to.have.jsonBody(\"userId\", 1)",
-							"// });"
+							"// });",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"console.log(\"user_id=\" + jsonData.user_id + \", balance=\" + jsonData.balance)"
 						],
 						"type": "text/javascript"
 					}
@@ -810,7 +822,9 @@
 							"        .and.have.jsonBody(\"goods_fail\", false)",
 							"        .and.have.jsonBody(\"money_fail\", false)",
 							"        .and.have.jsonBody(\"courier_fail\", false)",
-							"});"
+							"});",
+							"",
+							"console.log(\"buy prod1=3, prod=5, total_price=10\")"
 						],
 						"type": "text/javascript"
 					}
@@ -835,6 +849,76 @@
 					}
 				},
 				"url": "http://{{BASE_URL}}/api/v1/order/create"
+			},
+			"response": []
+		},
+		{
+			"name": "dummy request for pause in tests",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": "http://{{BASE_URL}}/api/v1/stock/prod-info/{{prod1_id}}"
+			},
+			"response": []
+		},
+		{
+			"name": "dummy request for pause in tests",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": "http://{{BASE_URL}}/api/v1/stock/prod-info/{{prod1_id}}"
 			},
 			"response": []
 		},
@@ -900,76 +984,6 @@
 			"response": []
 		},
 		{
-			"name": "dummy request for pause in tests",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Check status\", function() {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "GET",
-				"header": [],
-				"url": "http://{{BASE_URL}}/api/v1/stock/prod-info/{{prod1_id}}"
-			},
-			"response": []
-		},
-		{
-			"name": "dummy request for pause in tests",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Check status\", function() {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "GET",
-				"header": [],
-				"url": "http://{{BASE_URL}}/api/v1/stock/prod-info/{{prod1_id}}"
-			},
-			"response": []
-		},
-		{
 			"name": "get OK message for user",
 			"event": [
 				{
@@ -991,12 +1005,14 @@
 							"",
 							"let msg = \"Dear \" + pm.environment.get('user') + \" customer, \"",
 							"            + \"you have paid for your order. Your goods will be delivered by our courier.\"",
-							"console.log(msg)",
+							"",
 							"pm.test(\"Check message\", function() {",
 							"    pm.response.to.have.jsonBody(\"order_uuid\", pm.environment.get('uuid'))",
 							"        .and.have.jsonBody(\"client_id\", pm.environment.get('user_id'))",
 							"        .and.have.jsonBody(\"msg\", msg)",
-							"});"
+							"});",
+							"var jsonData = JSON.parse(responseBody);",
+							"console.log(\"msg: \" + jsonData.msg)"
 						],
 						"type": "text/javascript"
 					}
@@ -1024,6 +1040,142 @@
 					}
 				},
 				"url": "http://{{BASE_URL}}/api/v1/notify/order/{{uuid}}"
+			},
+			"response": []
+		},
+		{
+			"name": "get balance by user",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// let depos_uuid1 = require('uuid')();",
+							"// pm.collectionVariables.set('depos_uuid1', depos_uuid1)",
+							"// console.log(depos_uuid1);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// pm.test(\"Check message\", function() {",
+							"//     pm.response.to.have.jsonBody(\"userId\", 1)",
+							"// });",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"console.log(\"user_id=\" + jsonData.user_id + \", balance=\" + jsonData.balance)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{user_token}}"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "http://{{BASE_URL}}/api/v1/balance/{{user_id}}"
+			},
+			"response": []
+		},
+		{
+			"name": "get amount of product 1 in stock by superuser",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"prod_id\", pm.environment.get('prod1_id'))",
+							"        .and.have.jsonBody(\"amount\", 97)",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"console.log(\"prod_id1=\" + jsonData.prod_id + \", amount=\" + jsonData.amount)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{superuser0_token}}"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "http://{{BASE_URL}}/api/v1/stock/product/{{prod1_id}}"
+			},
+			"response": []
+		},
+		{
+			"name": "get amount of product 2 in stock by superuser",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"prod_id\", pm.environment.get('prod2_id'))",
+							"        .and.have.jsonBody(\"amount\", 95)",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"console.log(\"prod_id2=\" + jsonData.prod_id + \", amount=\" + jsonData.amount)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{superuser0_token}}"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "http://{{BASE_URL}}/api/v1/stock/product/{{prod2_id}}"
 			},
 			"response": []
 		}
