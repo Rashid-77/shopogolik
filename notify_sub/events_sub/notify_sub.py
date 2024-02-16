@@ -48,12 +48,12 @@ def process_notify(msg):
             u = user.get_by_user_id(db, user_id=user_id)
             customer = u.username if u else "?"
             reason = val.get("reason")
-            if reason == "balance is insufficient":
-                MSG_ORDER_CANCELED = f'Dear customer {customer.capitalize()}, your order '\
-                                    f'canceled due your balance is insufficient.'
+            if "balance" in reason:
+                MSG_ORDER_CANCELED = f'Dear {customer.capitalize()} customer, your order '\
+                                    f'canceled due to{reason}.'
             else:
-                MSG_ORDER_CANCELED = f'Dear customer {customer.capitalize()}, your order '\
-                                f'canceled due {reason}. You will receive your money back.'
+                MSG_ORDER_CANCELED = f'Dear {customer.capitalize()} customer, your order '\
+                                f'canceled due to{reason}. You will receive your money back.'
             n = notify.create(
                 db, 
                 obj_in=Notify(
@@ -66,8 +66,8 @@ def process_notify(msg):
         elif val.get("state") == "rdy_to_ship":
             u = user.get_by_user_id(db, user_id=user_id)
             customer = u.username if u else "?"
-            MSG_ORDER_PAID = f'Dear customer {customer.capitalize()}, you just have paid your order. '\
-                            f'Your goods will be delivered by our couriers.'
+            MSG_ORDER_PAID = f'Dear {customer.capitalize()} customer, you have paid for '\
+                            f'your order. Your goods will be delivered by our courier.'
             n = notify.create(
                 db, 
                 obj_in=Notify(
