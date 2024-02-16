@@ -1,0 +1,902 @@
+{
+	"info": {
+		"_postman_id": "b6dd8894-ed0c-4584-bc14-6d5897157adf",
+		"name": "m-hw9-Order-Fail",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "12870437"
+	},
+	"item": [
+		{
+			"name": "login superuser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.environment.set('superuser0_token', jsonData.access_token);",
+							"console.log(pm.environment.replaceIn('{{superuser0_token}}'));",
+							"",
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Value is a string and not empty\", function() {",
+							"    pm.response.to.have.jsonBody(\"token_type\", \"bearer\")",
+							"    pm.expect(jsonData.access_token).to.be.a('string').and.not.be.empty",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let superuser0 = \"change@me.please\";",
+							"",
+							"pm.collectionVariables.set('superuser0', superuser0);",
+							"pm.collectionVariables.set('superuser0_email', superuser0);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "{{superuser0}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "change-password",
+							"type": "text"
+						}
+					]
+				},
+				"url": "http://{{BASE_URL}}/api/v1/login"
+			},
+			"response": []
+		},
+		{
+			"name": "create product 1 by superuser",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set('sku1', require('uuid')())",
+							"let rnd_prod = pm.variables.replaceIn(\"{{$randomProduct}}\") + '-' + pm.variables.replaceIn(\"{{$randomInt}}\")",
+							"pm.collectionVariables.set('prod', rnd_prod);",
+							"pm.collectionVariables.set('prod_price', pm.variables.replaceIn(\"{{$randomPrice}}\"));",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"name\", pm.collectionVariables.get('prod'))",
+							"        .and.have.jsonBody(\"price\", pm.collectionVariables.get('prod_price'))",
+							"        .and.have.jsonBody(\"sku\", pm.collectionVariables.get('sku1'))",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.environment.set('prod1_id', jsonData.id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{superuser0_token}}"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"sku\": \"{{sku1}}\",\n    \"name\": \"{{prod}}\",\n    \"price\": \"{{prod_price}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/product/add"
+			},
+			"response": []
+		},
+		{
+			"name": "add product 1 to stock by superuser",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{superuser0_token}}"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"prod_id\": {{prod1_id}},\n    \"amount\": 100\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/stock/product/add"
+			},
+			"response": []
+		},
+		{
+			"name": "get amount of product 1 in stock by superuser",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"prod_id\", pm.environment.get('prod1_id'))",
+							"        .and.have.jsonBody(\"amount\", 100)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{superuser0_token}}"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "http://{{BASE_URL}}/api/v1/stock/product/{{prod1_id}}"
+			},
+			"response": []
+		},
+		{
+			"name": "register Courier 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"username\", pm.environment.get('user1'))",
+							"        .and.have.jsonBody(\"first_name\", \"courier\")",
+							"        .and.have.jsonBody(\"last_name\", \"M\")",
+							"        .and.have.jsonBody(\"email\", pm.environment.get('email_1'))",
+							"        .and.have.jsonBody(\"phone\", \"299-653-4964\")",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.environment.set('courier1_id', jsonData.id);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let user = 'courier-' + pm.variables.replaceIn(\"{{$randomFirstName}}\");",
+							"let email = user + '@email.com';",
+							"",
+							"pm.environment.set('user1', user);",
+							"pm.environment.set('email_1', email);",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{superuser0_token}}"
+					}
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{user1}}\",\n    \"first_name\": \"courier\",\n    \"last_name\": \"M\",\n    \"email\": \"{{email_1}}\",\n    \"phone\": \"299-653-4964\",\n    \"is_superuser\": \"false\",\n    \"password\": \"w\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/logistic/courier/register"
+			},
+			"response": []
+		},
+		{
+			"name": "add courier 1 to logistic by superuser",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// let depos_uuid1 = require('uuid')();",
+							"// pm.environment.set('depos_uuid1', depos_uuid1)",
+							"// console.log(depos_uuid1);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// pm.test(\"Check message\", function() {",
+							"//     pm.response.to.have.jsonBody(\"userId\", 1)",
+							"// });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{superuser0_token}}"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"url": "http://{{BASE_URL}}/api/v1/logistic/{{courier1_id}}"
+			},
+			"response": []
+		},
+		{
+			"name": "get free couriers",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{superuser0_token}}"
+					}
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/logistic/free-couriers"
+			},
+			"response": []
+		},
+		{
+			"name": "register user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"username\", pm.environment.get('user'))",
+							"        .and.have.jsonBody(\"first_name\", \"A\")",
+							"        .and.have.jsonBody(\"last_name\", \"M\")",
+							"        .and.have.jsonBody(\"email\", pm.environment.get('email'))",
+							"        .and.have.jsonBody(\"phone\", \"8-\" + pm.environment.get('phone'))",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.environment.set('user_id', jsonData.id);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let user = pm.variables.replaceIn(\"{{$randomFirstName}}\")",
+							"pm.environment.set('user', user);",
+							"pm.environment.set('email', user + '@email.com');",
+							"pm.environment.set('phone', pm.variables.replaceIn('{{$randomPhoneNumber}}'));",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{user}}\",\n    \"first_name\": \"A\",\n    \"last_name\": \"M\",\n    \"email\": \"{{email}}\",\n    \"phone\": \"8-{{phone}}\",\n    \"is_superuser\": \"false\",\n    \"password\": \"w\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/user/register"
+			},
+			"response": []
+		},
+		{
+			"name": "login user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.environment.set('user_token', jsonData.access_token);",
+							"console.log(pm.environment.replaceIn('{{user_token}}'));",
+							"",
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Value is a string and not empty\", function() {",
+							"    pm.response.to.have.jsonBody(\"token_type\", \"bearer\")",
+							"    pm.expect(jsonData.access_token).to.be.a('string').and.not.be.empty",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "{{user}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "w",
+							"type": "text"
+						}
+					]
+				},
+				"url": "http://{{BASE_URL}}/api/v1/login"
+			},
+			"response": []
+		},
+		{
+			"name": "deposit by user",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let depos_uuid = require('uuid')();",
+							"pm.environment.set('depos_uuid1', depos_uuid)",
+							"console.log(depos_uuid);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"user_id\", pm.environment.get('user_id'))",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{user_token}}"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_id\": {{user_id}},\n    \"depos_uuid\": \"{{depos_uuid1}}\",\n    \"amount\": \"150\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/balance/deposit"
+			},
+			"response": []
+		},
+		{
+			"name": "get balance by user",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"balance\", 150)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{user_token}}"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "http://{{BASE_URL}}/api/v1/balance/{{user_id}}"
+			},
+			"response": []
+		},
+		{
+			"name": "create order by user",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let uuid1 = require('uuid')();",
+							"pm.environment.set('uuid', uuid1)",
+							"console.log(uuid1);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"uuid\", pm.environment.get('uuid'))",
+							"        .and.have.jsonBody(\"userId\", pm.environment.get('user_id'))",
+							"        .and.have.jsonBody(\"goods_reserved\", false)",
+							"        .and.have.jsonBody(\"money_reserved\", false)",
+							"        .and.have.jsonBody(\"courier_reserved\", false)",
+							"        .and.have.jsonBody(\"reserv_user_canceled\", false)",
+							"        .and.have.jsonBody(\"goods_fail\", false)",
+							"        .and.have.jsonBody(\"money_fail\", false)",
+							"        .and.have.jsonBody(\"courier_fail\", false)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{user_token}}"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uuid\": \"{{uuid}}\",\n    \"userId\": \"{{user_id}}\",\n    \"products\": [\n        {\"prod_id\": {{prod1_id}}, \"amount\": 3}\n    ],\n    \"deliv_t_from\": \"2024-02-08 13:30:00\",\n    \"deliv_t_to\": \"2024-02-08 20:00:00\",\n    \"deliv_addr\": \"Common city, Main street, 2\",\n    \"total_price\": 200\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/order/create"
+			},
+			"response": []
+		},
+		{
+			"name": "get order state by user",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"uuid\", pm.environment.get('uuid'))",
+							"        .and.have.jsonBody(\"userId\", pm.environment.get('user_id'))",
+							"        .and.have.jsonBody(\"goods_reserved\", false)",
+							"        .and.have.jsonBody(\"money_reserved\", false)",
+							"        .and.have.jsonBody(\"courier_reserved\", false)",
+							"        .and.have.jsonBody(\"reserv_user_canceled\", false)",
+							"        .and.have.jsonBody(\"goods_fail\", false)",
+							"        .and.have.jsonBody(\"money_fail\", true)",
+							"        .and.have.jsonBody(\"courier_fail\", false)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{user_token}}"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/order/{{uuid}}"
+			},
+			"response": []
+		},
+		{
+			"name": "dummy request for pause in tests",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": "http://{{BASE_URL}}/api/v1/stock/prod-info/{{prod1_id}}"
+			},
+			"response": []
+		},
+		{
+			"name": "dummy request for pause in tests",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": "http://{{BASE_URL}}/api/v1/stock/prod-info/{{prod1_id}}"
+			},
+			"response": []
+		},
+		{
+			"name": "get Fail message for user",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check status\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"let msg = \"Dear \" + pm.environment.get('user') + \" customer, \"",
+							"            + \"your order canceled due to insufficient balance.\"",
+							"console.log(msg)",
+							"pm.test(\"Check message\", function() {",
+							"    pm.response.to.have.jsonBody(\"order_uuid\", pm.environment.get('uuid'))",
+							"        .and.have.jsonBody(\"client_id\", pm.environment.get('user_id'))",
+							"        .and.have.jsonBody(\"msg\", msg)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{user_token}}"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://{{BASE_URL}}/api/v1/notify/order/{{uuid}}"
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "superuser0",
+			"value": ""
+		},
+		{
+			"key": "superuser0_email",
+			"value": ""
+		},
+		{
+			"key": "sku1",
+			"value": ""
+		},
+		{
+			"key": "prod",
+			"value": ""
+		},
+		{
+			"key": "prod_price",
+			"value": ""
+		},
+		{
+			"key": "sku2",
+			"value": ""
+		}
+	]
+}

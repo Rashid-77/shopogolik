@@ -36,6 +36,8 @@ Spin up your claster using the helm
 
 First install <a href="https://helm.sh/docs/intro/install/"> helm.</a>
 
+All services will be installed in the default namespace.
+
 From project root run:
 
 <code>helm install kafka helm-kafka-chart/</code>
@@ -85,13 +87,9 @@ To use postman tests install newman:
 
 **Testing**
 
-<code>newman run m-hw8-test1-All-reserved-successfully.postman_collection.json --delay-request 1000 --env-var BASE_URL=arch.homework</code>
+<code>newman run m-hw9-order-OK.postman_collection.json --delay-request 1000 --env-var BASE_URL=arch.homework</code>
 
-<code>newman run m-hw8-test2-No_product.postman_collection.json --delay-request 1000 --env-var BASE_URL=arch.homework</code>
-
-<code>newman run m-hw8-test3-No_money.postman_collection.json --delay-request 1000 --env-var BASE_URL=arch.homework</code>
-
-<code>newman run m-hw8-test4-No_courier.postman_collection.json --delay-request 1000 --env-var BASE_URL=arch.homework</code>
+<code>newman run m-hw9-Order-Fail.postman_collection.json --delay-request 1000 --env-var BASE_URL=arch.homework</code>
 
 **To shutdown app**:
 
