@@ -1,7 +1,7 @@
 paymentServer:
   replicaCount: 1
   image:
-    repository: rash77/shopogolik-payment:v0.0.1
+    repository: rash77/shopogolik-payment:v0.1.0
     pullPolicy: Always
   port: 8000
   portName: payment-shopsvc
@@ -17,7 +17,7 @@ paymentServer:
 paymentSub:
   replicaCount: 1
   image:
-    repository: rash77/shopogolik-payment-sub:v0.0.1
+    repository: rash77/shopogolik-payment-sub:v0.1.0
     pullPolicy: Always
 
 db:

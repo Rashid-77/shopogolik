@@ -30,8 +30,6 @@ def dispatch_msgs(msg):
     event_id = val.get("id")
     cancel_order = False
 
-    logger.info(f'')    # gap for readability
-
     if val.get("name") == "product":
         sub_ev = sub_prod_event.get_by_event_id(db, event_id)
         if sub_ev is not None:
@@ -51,10 +49,10 @@ def dispatch_msgs(msg):
         o: Order = order.get(db, order_uuid)
         if at_least_one_reserved:
             o =order.update(db, db_obj=o, obj_in={"goods_reserved": True})
-            logger.info(f'{val.get("state")}')
+            logger.info(f' {val.get("state")}')
         elif val.get("canceled"):
             o =order.update(db, db_obj=o, obj_in={"goods_reserved": False})
-            logger.info(f'Goods are canceled')
+            logger.info(f' {val.get("state")}')
         else:
             cancel_order = True
             o =order.update(db, db_obj=o, obj_in={"goods_fail": True})
@@ -75,9 +73,9 @@ def dispatch_msgs(msg):
         if val.get("reserved"):
             o =order.update(db, db_obj=o, obj_in={"money_reserved": True})
             logger.info(f'Money reserved')
-        elif val.get("refunded"):
+        elif val.get("canceled"):
             o =order.update(db, db_obj=o, obj_in={"money_reserved": False})
-            logger.info(f'{val.get("state")}')
+            logger.info(f' {val.get("state")}')
         else:
             cancel_order = True
             o =order.update(db, db_obj=o, obj_in={"money_fail": True})
@@ -111,10 +109,21 @@ def dispatch_msgs(msg):
             "name" : "order",
             "user_id": val.get("user_id"),
             "order_uuid": order_uuid,
-            "canceled": True,
+            "state": "canceling",
             "id": pub_ev.id
         }
         send_message(p, 'order', cancel_order)
+    elif o.goods_reserved and o.money_reserved and o.courier_reserved \
+        and not o.reserv_user_canceled:
+        pub_ev  = pub_event.create(db, obj_in=PubEventCreate(order_id=order_uuid))
+        rdy_to_ship = {
+            "name" : "order",
+            "user_id": val.get("user_id"),
+            "order_uuid": order_uuid,
+            "state": "rdy_to_ship",
+            "id": pub_ev.id
+        }
+        send_message(p, 'order', rdy_to_ship)
 
 
 def process_pool(msg):
@@ -126,6 +135,7 @@ def process_pool(msg):
         elif msg.error():
             raise KafkaException(msg.error())
     else:
+        logger.info(f'')    # gap in log for readability
         logger.info(f'<--- Received: t={msg.topic()}, p={msg.partition()}, o={msg.offset()}')
         logger.info(f'     msg:{json.loads(msg.value())}')
         dispatch_msgs(msg)

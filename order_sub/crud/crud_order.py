@@ -1,6 +1,6 @@
 from typing import Any, Optional, Dict, Union
 from uuid import UUID
-from datetime import datetime
+from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session
 
 from crud.base import CRUDBase
@@ -17,12 +17,6 @@ class CRUDOrder(CRUDBase[Order, OrderCreate, OrderUpdate]):
         db_obj = Order(
             uuid = obj_in.uuid,
             userId = user_id,
-            # goods_reserved = False,
-            # money_reserved = False,
-            # courier_reserved = False,
-            # goods_fail = False,
-            # money_fail = False,
-            # courier_fail = False,
         )
         db.add(db_obj)
         db.commit()
@@ -40,6 +34,18 @@ class CRUDOrder(CRUDBase[Order, OrderCreate, OrderUpdate]):
 
     def is_order_exists(self, db: Session, *, uuid: UUID) -> Optional[Order]:
         return db.query(Order).filter(Order.uuid == uuid).first()
+
+    def is_canceling(self, db: Session, order_uuid) -> bool:
+        res = db.query(Order).filter(Order.uuid == order_uuid) \
+            .filter(or_(
+                Order.goods_fail == True,
+                Order.money_fail == True,
+                Order.courier_fail == True,
+                Order.reserv_user_canceled == True,
+                )
+            ) \
+            .first()
+        return True if res else False
 
 
 order = CRUDOrder(Order)

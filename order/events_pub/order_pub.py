@@ -32,7 +32,8 @@ def publish_order_created(order: OrderInfoCreate):
         "deliv_t_to": order.deliv_t_to.strftime("%Y-%d-%m, %H:%M:%S"),
         "deliv_addr": order.deliv_addr,
         "products": order.products,
-        "to_pay": "13"
+        "to_pay": "13",
+        "state": "new_order"
     }
     pub_ev  = pub_event.create(db, obj_in=PubEventCreate(order_id=order.uuid.hex))
     order_msg["id"] = pub_ev.id

@@ -70,7 +70,6 @@ class StockUtils:
                 res = {"prod_id": r.prod_id, "amount": 0}
                 r.amount_processed
                 for ps in prod_in_stock:
-                    logger.info(f' {p_id} ? {ps.prod_id}')
                     if p_id != ps.prod_id:
                         continue
 
@@ -108,16 +107,10 @@ class StockUtils:
                     logger.info(f'  BAD_PROD_ID')
 
                 reserved.append(r)
-                logger.info(f"{len(reserved)=}")
             
             session.add_all(reserved)
-            logger.info("add_all(reserved)")
-            
             session.add_all(prod_in_stock)
-            logger.info("add_all(prod_in_stock)")
-            
             session.commit()
-            logger.info("commit")
             # check
             prod_in_stock = session.query(Stock) \
                                 .filter(Stock.prod_id.in_(prod_ids)) \
@@ -154,14 +147,15 @@ class StockUtils:
                             .filter(
                                 and_(
                                     Reserve.order_id == order_id,
-                                    Reserve.cancel==False
+                                    Reserve.cancel==False,
+                                    Reserve.amount_processed > 0
                                     )) \
                             .order_by(Reserve.prod_id) \
                             .all()
             if not len(prods):
                 msg = '"not canceled" products for "this order" are not found in reserve'
                 answ_msg["state"] = msg
-                logger.warn(msg)
+                logger.info(msg)
                 return False
             
             prod_ids = [p.prod_id for p in prods]

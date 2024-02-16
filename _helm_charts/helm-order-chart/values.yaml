@@ -1,7 +1,7 @@
 orderServer:
   replicaCount: 1
   image:
-    repository: rash77/shopogolik-order:v0.0.3
+    repository: rash77/shopogolik-order:v0.1.0
     pullPolicy: Always
   port: 8000
   portName: order-shopsvc
@@ -17,7 +17,7 @@ orderServer:
 orderSub:
   replicaCount: 1
   image:
-    repository: rash77/shopogolik-order-sub:v0.0.1
+    repository: rash77/shopogolik-order-sub:v0.1.0
     pullPolicy: Always
 
 db:

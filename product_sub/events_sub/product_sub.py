@@ -47,9 +47,9 @@ def dispatch_msgs(msg):
             "user_id": val.get("user_id"),
             "reserved": [],
         }
-        if val.get("canceled"):
+        if val.get("state") == "canceling":
             ''' cancel goods reservation here for order_uuid... '''
-            logger.error(f'Reservation for order {order_uuid} canceled')
+            logger.info(f'Reservation for order {order_uuid} canceled')
             reserve_log.create_cancel_if_not_exists(
                 order_uuid,
                 obj_in=ReserveCreate(
@@ -60,10 +60,10 @@ def dispatch_msgs(msg):
                 )
             )
             res = stock_utils.cancel_reserved(order_uuid, answ_msg)
-            # reserve_log.update()
+            # reserve_log.update() TODO this
             if not res:
                 return
-        else:        
+        elif val.get("state") == "new_order":
             logger.info(f' id={event_id} , order_uuid={order_uuid}')
 
             cnt_full, cnt_fail  = stock_utils.reserve_product(
@@ -85,6 +85,9 @@ def dispatch_msgs(msg):
                     order_id = order_uuid
                 )
             )
+        else:
+            return
+        
         pub_ev  = pub_event.create(db, obj_in=PubEventCreate(order_id=order_uuid))
         answ_msg["id"] = pub_ev.id
         send_message(p, "product", answ_msg)

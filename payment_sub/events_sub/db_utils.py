@@ -89,7 +89,7 @@ class BalanceUtils():
             answ_msg: dict,
         ) -> bool:
         logger.info("cancel_reserved()")
-        answ_msg["refunded"] = False
+        answ_msg["canceled"] = False
         with SessionLocal() as session:
             bal = session.query(Balance) \
                             .filter(
@@ -143,7 +143,8 @@ class BalanceUtils():
             logger.info(f' user balance: {bal.balance} + {bal.amount} = {new_balance}')
             session.add(new_bal)
             session.commit()
-            answ_msg["refunded"] = True
+            answ_msg["canceled"] = True
+            answ_msg["state"] = "money refunded"
             return True
 
 
