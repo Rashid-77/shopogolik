@@ -36,11 +36,12 @@ async def get_current_user(
     x_phone: Annotated[str | None, Header()] = "",
     x_superuser: Annotated[str | None, Header()] = "",
     ) -> models.User:
-    logger.info("get_current_user()")
+
     if ((x_userid is None or x_userid=="")
         or (x_user is None or x_user=="")
         or (x_email is None or x_email=="")):
-        logger.info(f" {x_userid=}, {x_user=}, {x_first_name=}, {x_last_name=}, {x_email=}, {x_phone=} ")
+        logger.debug(f" {x_userid=}, {x_user=}, {x_first_name=}, {x_last_name=},"
+                    f" {x_email=}, {x_phone=} {x_superuser=}")
         raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -54,9 +55,8 @@ async def get_current_user(
         email = x_email,
         phone = x_phone,
         disabled=False,
-        is_superuser=True,#x_superuser
+        is_superuser=True if x_superuser=="True" else False
     )
-    logger.info(f" {user=}")
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user

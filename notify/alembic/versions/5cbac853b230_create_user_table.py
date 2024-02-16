@@ -1,6 +1,6 @@
 """create user table
 
-Revision ID: acdd1da395cb
+Revision ID: 5cbac853b230
 Revises: 
 Create Date: 2023-10-30 17:59:19.741947
 
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'acdd1da395cb'
+revision: str = '5cbac853b230'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -22,12 +22,17 @@ def upgrade() -> None:
     op.create_table(
         "User",
         sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("user_id", 
+                  sa.Integer(), 
+                  nullable=False, 
+                  server_default="0", 
+                  unique=True
+        ),
         sa.Column("username", sa.String(), nullable=True),
         sa.Column("first_name", sa.String(), nullable=True),
         sa.Column("last_name", sa.String(), nullable=True),
         sa.Column("email", sa.String(), nullable=True),
         sa.Column("phone", sa.String(), nullable=True),
-        sa.Column("hashed_password", sa.String(), nullable=True),
         sa.Column("disabled", sa.Boolean(), nullable=True),
         sa.Column("is_superuser", sa.Boolean(), nullable=True),
         sa.PrimaryKeyConstraint("id"),

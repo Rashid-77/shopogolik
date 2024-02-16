@@ -14,7 +14,7 @@ from db.session import SessionLocal
 from events_sub.utils import send_message
 
 CONSUMER_GROUP = 'order_group'
-POLL_WAIT = 0.3
+POLL_WAIT = 0.2
 
 logger = get_console_logger(__name__)
 logger.info("Order_sub started")
@@ -25,6 +25,16 @@ db = SessionLocal()
 
 
 def dispatch_msgs(msg):
+    def get_fail_reason(o: Order) -> str:
+        fail = []
+        if o.goods_fail:
+            fail.append(' out of stock')
+        if o.money_fail:
+            fail.append(' insufficient balance')
+        if o.courier_fail:
+            fail.append(' no couriers available')
+        return ','.join(fail)
+    
     val = json.loads(msg.value())
     order_uuid = val.get("order_uuid")
     event_id = val.get("id")
@@ -79,7 +89,7 @@ def dispatch_msgs(msg):
         else:
             cancel_order = True
             o =order.update(db, db_obj=o, obj_in={"money_fail": True})
-            logger.info(f'Balance is insufficient')
+            logger.info(f'insufficient balance')
 
     elif val.get("name") == "logistic":
         sub_ev = sub_logis_event.get_by_event_id(db, event_id)
@@ -110,6 +120,7 @@ def dispatch_msgs(msg):
             "user_id": val.get("user_id"),
             "order_uuid": order_uuid,
             "state": "canceling",
+            "reason": get_fail_reason(o),
             "id": pub_ev.id
         }
         send_message(p, 'order', cancel_order)

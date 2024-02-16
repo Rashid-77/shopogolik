@@ -45,7 +45,10 @@ spec:
             secretKeyRef:
               name: auth-server-credentials
               key: superuser_pwd
-
+        - name: BROKER_HOST
+          value: {{ .Values.broker.host }}
+        - name: BROKER_PORT
+          value: {{ .Values.broker.port | quote }}
         image: {{ .Values.authServer.image.repository }}
         imagePullPolicy: {{ .Values.authServer.image.pullPolicy }}
         name: {{ .Release.Name }}

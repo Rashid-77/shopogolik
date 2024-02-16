@@ -12,7 +12,6 @@ class Settings(BaseSettings):
     pg_host: str = os.getenv("POSTGRES_HOST", "")
     pg_port: str = os.getenv("POSTGRES_PORT", "")
     pg_database: str = os.getenv("POSTGRES_DB", "")
-    
     pg_url: str = f"postgresql://{pg_user}:{pg_pass}@{pg_host}:{pg_port}/{pg_database}"
 
     first_superuser: EmailStr = os.getenv("FIRST_SUPERUSER", "")
@@ -20,6 +19,9 @@ class Settings(BaseSettings):
 
     secret: str = os.getenv("SECRET", "")
 
+    broker_host: str = os.getenv("BROKER_HOST", "")
+    broker_port: str = os.getenv("BROKER_PORT", "")
+    broker_url: str = f"{broker_host}:{broker_port}"
 
 # TODO Make this settings a global object
 def get_settings():

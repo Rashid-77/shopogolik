@@ -1,30 +1,33 @@
+'''
+    The limited version of user schemas from auth service.
+    It does not have hashed password
+'''
+
 from datetime import date
 from typing import Optional
 
-from pydantic import BaseModel, NameEmail, Field
-from pydantic_extra_types.phone_numbers import PhoneNumber
+from pydantic import BaseModel, Field
 
 # Shared properties
 class UserBase(BaseModel):
+    user_id: Optional[int]
     username: Optional[str] = Field(None, max_legth=256)
     first_name: Optional[str] = Field(None)
     last_name: Optional[str] = Field(None)
-    email: str #NameEmail
-    phone: Optional[str] = Field(None) #PhoneNumber
-    
+    email: str
+    phone: Optional[str] = Field(None)
 
 
 # Properties to receive via API on creation
 class UserCreate(UserBase):
+    user_id: int
     username: str
     is_superuser: bool
-    password: str
-    pass
 
 
 # Properties to receive via API on update
 class UserUpdate(UserBase):
-    password: Optional[str] = None
+    pass
 
 
 class UserInDBBase(UserBase):
@@ -41,5 +44,5 @@ class User(UserInDBBase):
 
 # Additional properties stored in DB
 class UserInDB(UserInDBBase):
-    hashed_password: str
+    disabled: bool
     is_superuser: bool

@@ -20,15 +20,15 @@ def init_db(db: Session) -> None:
 
     # Base.metadata.create_all(bind=engine)
 
-    email = os.getenv("FIRST_SUPERUSER", "")
-    passw = os.getenv("FIRST_SUPERUSER_PASSWORD", "")
-    user = crud.user.get_by_email(db, email=email)
-    if not user:
-        user_in = schemas.UserCreate(
-            username=email,
-            email=email,
-            password=passw,
-            is_superuser=True,
-        )
-        user = crud.user.create(db, obj_in=user_in)  # noqa: F841
+    # email = os.getenv("FIRST_SUPERUSER", "")
+    # passw = os.getenv("FIRST_SUPERUSER_PASSWORD", "")
+    # user = crud.user.get_by_email(db, email=email)
+    # if not user:
+    #     user_in = schemas.UserCreate(
+    #         username=email,
+    #         email=email,
+    #         password=passw,
+    #         is_superuser=True,
+    #     )
+    #     user = crud.user.create(db, obj_in=user_in)  # noqa: F841
     pass
