@@ -3,6 +3,7 @@ from typing import Any, Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Header, Response, status
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from prometheus_client import Histogram
 from sqlalchemy.orm import Session
 
 import crud, schemas, models
@@ -11,9 +12,11 @@ from utils import security
 from logger import logger
 
 router = APIRouter()
+REQUEST_TIME_BACKET = Histogram('login_request_latency_seconds', 'Time spent processing request', ['endpoint'])
 
 
 @router.post("/login", response_model=schemas.Token)
+@REQUEST_TIME_BACKET.labels(endpoint='/login').time()
 def login_access_token(
     db: Session = Depends(deps.get_db), 
     form_data: OAuth2PasswordRequestForm = Depends()
@@ -41,6 +44,7 @@ def login_access_token(
 
 
 @router.post("/logout", response_model=schemas.Token)
+@REQUEST_TIME_BACKET.labels(endpoint='/logout').time()
 def logout(current_user: models.User = Depends(deps.get_current_active_user)) -> Any:
     """
     Logut from system
@@ -51,6 +55,7 @@ def logout(current_user: models.User = Depends(deps.get_current_active_user)) ->
     }
 
 @router.get("/signin")
+@REQUEST_TIME_BACKET.labels(endpoint='/signin').time()
 def signin() -> Any:
     """
     Redirection to the login page
@@ -65,6 +70,7 @@ from pydantic import ValidationError
 oath_jwt_token = OAuth2PasswordBearer(tokenUrl="token")
 
 @router.get("/auth")# , response_model=schemas.XAuthHeaders)
+@REQUEST_TIME_BACKET.labels(endpoint='/auth').time()
 def authenticate(
         # authorization: Annotated[str | None, Header()] = None,
         token: Annotated[str, Depends(oath_jwt_token)],

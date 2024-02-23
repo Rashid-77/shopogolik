@@ -10,11 +10,11 @@ from events_pub.user_pub import publish_user_created
 
 router = APIRouter()
 
-REQUEST_TIME_BACKET = Histogram('request_latency_seconds', 'Time spent processing request', ['endpoint'])
+REQUEST_TIME_BACKET = Histogram('user_request_latency_seconds', 'Time spent processing request', ['endpoint'])
 
 
 @router.post("/register", response_model=schemas.User)
-@REQUEST_TIME_BACKET.labels(endpoint='/user').time()
+@REQUEST_TIME_BACKET.labels(endpoint='/user/register').time()
 def create_user(
     *,
     db: Session = Depends(deps.get_db),

@@ -4,7 +4,7 @@ metadata:
   name: grafana-import-dashboards
   labels:
     grafana_dashboard: "1"
-    namespace: monitoring
+    namespace: default
 data:
   grafana-net-2-dashboard.json: |-
     {

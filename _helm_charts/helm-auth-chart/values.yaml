@@ -1,7 +1,7 @@
 authServer:
   replicaCount: 1
   image:
-    repository: rash77/shopogolik-auth:v0.0.3
+    repository: rash77/shopogolik-auth:v0.1.0
     pullPolicy: Always
   port: 8000
   portName: auth-shopsvc

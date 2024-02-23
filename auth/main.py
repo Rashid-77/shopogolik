@@ -23,7 +23,7 @@ app = FastAPI()
 app.include_router(api_router, prefix=get_settings().API_V1_STR)
 
 metrics_app = make_asgi_app()
-app.mount("/metrics", metrics_app)
+app.mount("/api/v1/user/metrics/", metrics_app)
 
 app.middleware("http")(log_request_middleware)
 app.add_exception_handler(RequestValidationError, request_validation_exception_handler)
