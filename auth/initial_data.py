@@ -1,7 +1,7 @@
 from backend_pre_start import SessionLocal
 from db.init_db import init_db
-
 from logger import logger
+
 
 def init() -> None:
     db = SessionLocal()
