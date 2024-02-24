@@ -1,21 +1,24 @@
-from fastapi import FastAPI
-from fastapi import Request
-from fastapi.exceptions import RequestValidationError
-from prometheus_client import make_asgi_app
-from starlette.exceptions import HTTPException
+import logging
 
 from api.api_v1.api import api_router
-from exception_handlers import request_validation_exception_handler, http_exception_handler, unhandled_exception_handler
+from exception_handlers import (
+    http_exception_handler,
+    request_validation_exception_handler,
+    unhandled_exception_handler,
+)
+from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from middleware import log_request_middleware
+from prometheus_client import make_asgi_app
+from starlette.exceptions import HTTPException
 from utils import get_settings
 
-import logging
 logging.basicConfig(
     level=logging.INFO,
     format="[%(asctime)s] %(levelname).1s %(message)s",
     datefmt="%Y.%m.%d %H:%M:%S",
 )
-    
+
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
