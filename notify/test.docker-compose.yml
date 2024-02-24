@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  backend:
+    container_name: notify-shop
+    build: 
+      dockerfile: Dockerfile
+    command: bash -c "/code/create_tables_and_superuser.sh"
+    env_file: 
+      - .env
+    volumes:
+      - .:/code
+    ports:
+      - '8001:8001'
+
+  db:
+    image: postgres:9.6
+    container_name: test_db
+    ports:
+      - 5432:5432
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data/pgdata 
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    env_file:
+      - .env
+
+networks:
+  shop_network:
+    driver: bridge
