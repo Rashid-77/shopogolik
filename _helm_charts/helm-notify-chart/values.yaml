@@ -1,7 +1,7 @@
 notifyServer:
   replicaCount: 1
   image:
-    repository: rash77/shopogolik-notify:v0.0.1
+    repository: rash77/shopogolik-notify:v0.1.0
     pullPolicy: Always
   port: 8000
   portName: notify-svc

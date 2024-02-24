@@ -2,7 +2,7 @@ version: '3'
 
 services:
   backend:
-    container_name: product-shop
+    container_name: logistic-shop
     build: 
       dockerfile: Dockerfile
     env_file: 

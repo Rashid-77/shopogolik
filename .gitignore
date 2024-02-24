@@ -159,8 +159,8 @@ db_backend_mysql/
 db_test_backend_mysql/
 pg_data
 
-tests/
 test-local.sh
 test.env
-test.docker-compose.yml
 people*.sql
+
+docker-stack.yml
