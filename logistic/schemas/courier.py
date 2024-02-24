@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -9,8 +10,8 @@ class CourierBase(BaseModel):
     to_t: Optional[datetime] = 0
     order_uuid: Optional[str] = ""
     deliv_addr: Optional[str] = ""
-    client_id: int
-    reserve_uuid: int
+    client_id: Optional[int] = 0
+    reserve_uuid: Optional[str] = ""
 
 
 # Properties to receive via API on creation
@@ -25,7 +26,8 @@ class CourierUpdate(CourierBase):
     order_uuid: str
     deliv_addr: str
     client_id: int
-    reserve_uuid: int
+    reserve_uuid: str
+
 
 class CourierUnoccupied(BaseModel):
     id: Optional[int] = None
@@ -35,7 +37,7 @@ class CourierUnoccupied(BaseModel):
 class CourierInDBBase(CourierBase):
     id: Optional[int] = None
     courier_id: int
-    created_at : Optional[datetime] = None
+    created_at: Optional[datetime] = None
 
     # class Config:
     #     orm_mode = True
