@@ -1,23 +1,28 @@
-from fastapi import FastAPI
-from fastapi import Request
-from fastapi.exceptions import RequestValidationError
-from prometheus_client import make_asgi_app
-from starlette.exceptions import HTTPException
 from contextlib import asynccontextmanager
 
 from api.api_v1.api import api_router
-from exception_handlers import request_validation_exception_handler, http_exception_handler, unhandled_exception_handler
+from exception_handlers import (
+    http_exception_handler,
+    request_validation_exception_handler,
+    unhandled_exception_handler,
+)
+from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from middleware import log_request_middleware
+from prometheus_client import make_asgi_app
+from starlette.exceptions import HTTPException
 from utils import get_settings
 from utils.log import get_console_logger
-   
+
 logger = get_console_logger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # TODO initialize
     yield
     # TODO close connections
+
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(api_router, prefix=get_settings().API_V1_STR)
