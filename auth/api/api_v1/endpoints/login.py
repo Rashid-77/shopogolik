@@ -1,29 +1,32 @@
 from datetime import timedelta
-from typing import Any, Annotated
+from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException, Header, Response, status
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
-from sqlalchemy.orm import Session
-
-import crud, schemas, models
+import crud
+import models
+import schemas
 from api import deps
-from utils import security
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from jose import JWTError
 from logger import logger
+from pydantic import ValidationError
+from sqlalchemy.orm import Session
+from utils import security
+from utils.security import decode_access_token  # noqa
 
 router = APIRouter()
 
 
 @router.post("/login", response_model=schemas.Token)
 def login_access_token(
-    db: Session = Depends(deps.get_db), 
-    form_data: OAuth2PasswordRequestForm = Depends()
+    db: Session = Depends(deps.get_db), form_data: OAuth2PasswordRequestForm = Depends()
 ) -> Any:
     """
     OAuth2 compatible token login, get an access token for future requests
     """
     logger.info("")
-    logger.info('-->login_access_token()')
-    
+    logger.info("-->login_access_token()")
+
     user = crud.user.authenticate(
         db, username=form_data.username, password=form_data.password
     )
@@ -50,6 +53,7 @@ def logout(current_user: models.User = Depends(deps.get_current_active_user)) ->
         "token_type": "bearer",
     }
 
+
 @router.get("/signin")
 def signin() -> Any:
     """
@@ -58,18 +62,15 @@ def signin() -> Any:
     return {"message": "Please go to login and provide Login/Password"}
 
 
-from utils.security import decode_access_token  # noqa
-from jose import JWTError
-from pydantic import ValidationError
-
 oath_jwt_token = OAuth2PasswordBearer(tokenUrl="token")
 
-@router.get("/auth")# , response_model=schemas.XAuthHeaders)
+
+@router.get("/auth")  # , response_model=schemas.XAuthHeaders)
 def authenticate(
-        # authorization: Annotated[str | None, Header()] = None,
-        token: Annotated[str, Depends(oath_jwt_token)],
-        db: Session = Depends(deps.get_db), 
-    ) -> Any:
+    # authorization: Annotated[str | None, Header()] = None,
+    token: Annotated[str, Depends(oath_jwt_token)],
+    db: Session = Depends(deps.get_db),
+) -> Any:
     """
     Authenticate user
     """

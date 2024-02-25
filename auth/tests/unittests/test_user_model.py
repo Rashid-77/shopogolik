@@ -7,28 +7,30 @@ from schemas.user import UserCreate
 
 
 def rand_word(length):
-   letters = string.ascii_lowercase
-   return ''.join(random.choice(letters) for i in range(length))
+    letters = string.ascii_lowercase
+    return "".join(random.choice(letters) for i in range(length))
+
 
 EMAIL = f"a-{rand_word(3)}@.mail.com"
 
 
 class TestUser:
+    def test_create_read(
+        self,
+        val=UserCreate(
+            username="a",
+            first_name="b",
+            last_name="c",
+            email=EMAIL,
+            phone="79001112233",
+            password="w",
+            disabled=False,
+            is_superuser=True,
+        ),
+    ):
+        u = user.create(db=next(get_db()), obj_in=val)
 
-    def test_create_read(self, val=UserCreate(
-                            username = "a", 
-                            first_name = "b", 
-                            last_name = "c", 
-                            email = EMAIL, 
-                            phone = "79001112233", 
-                            password = "w",
-                            disabled = False, 
-                            is_superuser = True
-                        )
-        ):
-        u = user.create(db = next(get_db()), obj_in = val)
-
-        user_1 = user.get(db = next(get_db()), id=u.id)
+        user_1 = user.get(db=next(get_db()), id=u.id)
 
         assert user_1.id == u.id
         assert user_1.username == val.username
@@ -50,24 +52,22 @@ class TestUser:
         assert isinstance(u.disabled, bool)
         assert isinstance(u.is_superuser, bool)
 
-
     def test_update(self):
         with next(get_db()) as session:
-            user_1 = user.get_by_email(db = session, email=EMAIL) 
+            user_1 = user.get_by_email(db=session, email=EMAIL)
             assert user_1.first_name == "b"
 
             user_1a = user.update(
-                db = session, 
-                db_obj=user_1, 
-                obj_in={"first_name": "b-1"})
+                db=session, db_obj=user_1, obj_in={"first_name": "b-1"}
+            )
             assert user_1a.first_name == "b-1"
 
     def test_delete(self):
-        user_1 = user.get_by_email(db = next(get_db()), email=EMAIL) 
+        user_1 = user.get_by_email(db=next(get_db()), email=EMAIL)
         assert user_1 is not None
 
-        user_1 = user.remove(db = next(get_db()), id=user_1.id) 
+        user_1 = user.remove(db=next(get_db()), id=user_1.id)
         assert user_1 is not None
 
-        user_1 = user.get_by_email(db = next(get_db()), email=EMAIL) 
+        user_1 = user.get_by_email(db=next(get_db()), email=EMAIL)
         assert user_1 is None

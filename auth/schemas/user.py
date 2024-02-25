@@ -1,4 +1,4 @@
-from typing import Optional, Annotated
+from typing import Annotated, Optional
 
 from pydantic import BaseModel, Field, StringConstraints
 
@@ -10,7 +10,6 @@ class UserBase(BaseModel):
     last_name: Optional[str] = Field(None)
     email: str
     phone: Optional[str] = Field(None)
-    
 
 
 # Properties to receive via API on creation

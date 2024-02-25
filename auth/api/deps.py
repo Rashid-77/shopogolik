@@ -1,21 +1,16 @@
 from typing import Annotated, Generator
 
+import crud
+import models
+from db.session import SessionLocal
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
+from logger import logger
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
-
-# from backend import crud, get_logger, models
-import crud, models
-from db.session import SessionLocal
-from schemas.token import TokenData
-
-# from app.core import security
 from utils.config import get_settings
 from utils.security import decode_access_token  # noqa
-from logger import logger
-
 
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl=f"{get_settings().API_V1_STR}/login")
 token_oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -43,7 +38,7 @@ async def get_current_user(
         user_id: str = payload.get("sub")
         if user_id is None:
             raise credentials_exception
-        token_data = TokenData(user_id=user_id)
+        # token_data = TokenData(user_id=user_id)
     except (JWTError, ValidationError):
         raise credentials_exception
 
@@ -65,9 +60,8 @@ async def get_current_active_user(
 
 
 async def get_current_user_jwt(
-        token: Annotated[str, Depends(token_oauth2_scheme)],
-        db: Session = Depends(get_db)
-    ):
+    token: Annotated[str, Depends(token_oauth2_scheme)], db: Session = Depends(get_db)
+):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -79,7 +73,7 @@ async def get_current_user_jwt(
         user_id: str = payload.get("sub")
         if user_id is None:
             raise credentials_exception
-        token_data = TokenData(user_id=user_id)
+        # token_data = TokenData(user_id=user_id)
     except (JWTError, ValidationError):
         raise credentials_exception
 

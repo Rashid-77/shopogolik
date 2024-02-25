@@ -1,11 +1,10 @@
-import os
-
+import crud
 import schemas  # noqa: F401
 from sqlalchemy.orm import Session
-
-import crud
-from . import base  # noqa: F401
 from utils.config import get_settings
+
+from . import base  # noqa: F401
+
 # make sure all SQL Alchemy models are imported (app.db.base) before initializing DB
 # otherwise, SQL Alchemy might fail to initialize relationships properly
 # for more details: https://github.com/tiangolo/full-stack-fastapi-postgresql/issues/28

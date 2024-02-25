@@ -1,20 +1,23 @@
 from typing import Any
 
+import crud
+import models
+import schemas
+from api import deps
+from events_pub.user_pub import publish_user_created
 from fastapi import APIRouter, Depends, HTTPException, status
 from prometheus_client import Histogram
 from sqlalchemy.orm import Session
 
-import crud, schemas, models
-from api import deps
-from events_pub.user_pub import publish_user_created
-
 router = APIRouter()
 
-REQUEST_TIME_BACKET = Histogram('request_latency_seconds', 'Time spent processing request', ['endpoint'])
+REQUEST_TIME_BACKET = Histogram(
+    "request_latency_seconds", "Time spent processing request", ["endpoint"]
+)
 
 
 @router.post("/register", response_model=schemas.User)
-@REQUEST_TIME_BACKET.labels(endpoint='/user').time()
+@REQUEST_TIME_BACKET.labels(endpoint="/user").time()
 def create_user(
     *,
     db: Session = Depends(deps.get_db),
@@ -35,7 +38,7 @@ def create_user(
 
 
 @router.get("/{user_id}", response_model=schemas.User)
-@REQUEST_TIME_BACKET.labels(endpoint='/user').time()
+@REQUEST_TIME_BACKET.labels(endpoint="/user").time()
 def read_user_by_id(
     user_id: int,
     current_user: models.User = Depends(deps.get_current_active_user),
@@ -49,13 +52,15 @@ def read_user_by_id(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
     if user.id == current_user.id or current_user.is_superuser:
         return user
-    raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
+    raise HTTPException(
+        status_code=400, detail="The user doesn't have enough privileges"
+    )
 
 
 @router.get("/me", response_model=schemas.User)
-@REQUEST_TIME_BACKET.labels(endpoint='/user').time()
+@REQUEST_TIME_BACKET.labels(endpoint="/user").time()
 def read_user_me(
-    current_user: models.User = Depends(deps.get_current_active_user)
+    current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Get a current user info.
@@ -65,7 +70,7 @@ def read_user_me(
 
 
 @router.put("/{user_id}", response_model=schemas.User)
-@REQUEST_TIME_BACKET.labels(endpoint='/user').time()
+@REQUEST_TIME_BACKET.labels(endpoint="/user").time()
 def update_user(
     *,
     db: Session = Depends(deps.get_db),
@@ -86,7 +91,7 @@ def update_user(
 
 
 @router.delete("/{user_id}", response_model=schemas.User)
-@REQUEST_TIME_BACKET.labels(endpoint='/user').time()
+@REQUEST_TIME_BACKET.labels(endpoint="/user").time()
 def delete_user(
     *,
     db: Session = Depends(deps.get_db),
