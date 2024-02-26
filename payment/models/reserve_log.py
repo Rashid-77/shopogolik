@@ -1,21 +1,21 @@
 import enum
 
-from sqlalchemy import Column, Boolean, Integer, Enum, DateTime, String
-from sqlalchemy.sql import func
-
 from db import Base
+from sqlalchemy import Boolean, Column, DateTime, Enum, Integer, String
+from sqlalchemy.sql import func
 
 
 class MoneyReserveState(enum.Enum):
-    ''' defailt state '''
+    """defailt state"""
+
     NOT_DEFINED = 0
-    ''' event just committed, and not processed yet'''
+    """ event just committed, and not processed yet"""
     EVENT_COMMIT = 1
-    ''' the money is fully withdrawed from customer account '''
+    """ the money is fully withdrawed from customer account """
     RESERVED = 2
-    ''' the balance is insufficient '''
+    """ the balance is insufficient """
     NOT_ENOUGH = 3
-    ''' order is canceled, the product is returned to the stock '''
+    """ order is canceled, the product is returned to the stock """
     CANCELED = 4
 
 
@@ -28,9 +28,9 @@ class MoneyReserve(Base):
     state = Column(Enum(MoneyReserveState), default=MoneyReserveState.NOT_DEFINED)
     amount_processed = Column(Integer)
     updDate = Column(
-        DateTime(timezone=True), 
-        server_default=func.now(), 
-        nullable=False, 
-        index=True, 
-        default=None
-        )
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+        index=True,
+        default=None,
+    )

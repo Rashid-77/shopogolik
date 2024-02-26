@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -23,22 +24,26 @@ class BalanceBase(BaseModel):
 class BalanceCreate(BalanceBase):
     depos_uuid: str
 
+
 class BalanceWithdraw(BalanceBase):
     withdraw_uuid: str
     amount: float
+
 
 # Properties to receive via API on update
 class BalanceUpdate(BalanceBase):
     pass
 
+
 class BalanceNow(BaseModel):
     user_id: int
     balance: float
 
+
 class BalanceInDBBase(BalanceBase):
     id: Optional[int] = None
     deposidemp_id: int
-    created_at : Optional[datetime] = None
+    created_at: Optional[datetime] = None
 
     # class Config:
     #     orm_mode = True
