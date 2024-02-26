@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -27,6 +28,7 @@ class CourierUpdate(CourierBase):
     client_id: int
     reserve_uuid: int
 
+
 class CourierUnoccupied(BaseModel):
     id: Optional[int] = None
     courier_id: int
@@ -35,7 +37,7 @@ class CourierUnoccupied(BaseModel):
 class CourierInDBBase(CourierBase):
     id: Optional[int] = None
     courier_id: int
-    created_at : Optional[datetime] = None
+    created_at: Optional[datetime] = None
 
     # class Config:
     #     orm_mode = True
