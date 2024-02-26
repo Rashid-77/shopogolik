@@ -3,7 +3,7 @@
 
 The goal of this project is to experiments with kubernetes.
 
-Python3.10, FastApi, Postgress, docker compose V2 were used, Kubernetes 1.28.
+Python3.10, FastApi, Postgress, docker compose V2, Kubernetes 1.28 were used.
 
 The project consist of: 
 
