@@ -7,13 +7,12 @@ Create Date: 2024-02-14 13:47:31.726116
 """
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = '21010e96f565'
-down_revision: Union[str, None] = '294c77938281'
+revision: str = "21010e96f565"
+down_revision: Union[str, None] = "294c77938281"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -25,10 +24,12 @@ def upgrade() -> None:
         sa.Column("event_id", sa.Integer(), nullable=True),
         sa.Column("user_id", sa.Integer(), nullable=True),
         sa.Column("state", sa.Text(), nullable=True),
-        sa.Column("created_at", 
-                  sa.DateTime(timezone=True), 
-                  server_default=sa.func.now(),
-                  nullable=True),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.func.now(),
+            nullable=True,
+        ),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_sub_user_event_id"), "subuserevent", ["id"], unique=True)

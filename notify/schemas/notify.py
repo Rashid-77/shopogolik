@@ -1,6 +1,7 @@
-from uuid import UUID
 from datetime import datetime
 from typing import Optional
+from uuid import UUID
+
 from pydantic import BaseModel
 
 
@@ -26,7 +27,7 @@ class NotifyUpdate(NotifyBase):
 
 class NotifyInDBBase(NotifyBase):
     id: Optional[int] = None
-    created_at : Optional[datetime] = None
+    created_at: Optional[datetime] = None
 
     # class Config:
     #     orm_mode = True
