@@ -1,6 +1,9 @@
+[![pre-commit](https://github.com/Rashid-77/shopogolik/actions/workflows/check.yml/badge.svg)](https://github.com/Rashid-77/shopogolik/actions/workflows/check.yml)
+
 
 The goal of this project is to experiments with kubernetes.
-Python3.10, FastApi, Postgress, docker compose V2 are used.
+
+Python3.10, FastApi, Postgress, docker compose V2 were used, Kubernetes 1.28.
 
 The project consist of: 
 
@@ -10,6 +13,7 @@ The project consist of:
 - product service
 - payment service
 - logistic service
+- notification service
 
 At this moment Saga pattern realized to make order.
 Order depends on the avialability products in order, enough money on in-shop user account and available courier'
