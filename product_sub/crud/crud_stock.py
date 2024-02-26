@@ -1,20 +1,19 @@
-from typing import Any, Optional, Dict, Union
-from sqlalchemy.orm import Session
+from typing import Any, Dict, Optional, Union
 
 from crud.base import CRUDBase
 from models.stock import Stock
 from schemas.stock import StockCreate, StockUpdate
+from sqlalchemy.orm import Session
 
 
 class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
-
     def get(self, db: Session, id: int) -> Optional[Stock]:
         return db.query(self.model).filter(self.model.id == id).first()
 
     def create(self, db: Session, *, obj_in: StockCreate) -> Stock:
         db_obj = Stock(
-            prod_id = obj_in.prod_id,
-            amount = obj_in.amount,
+            prod_id=obj_in.prod_id,
+            amount=obj_in.amount,
         )
         db.add(db_obj)
         db.commit()
@@ -29,7 +28,6 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
         else:
             update_data = obj_in.model_dump(exclude_unset=True)
         return super().update_wiwthout_commit(db, db_obj=db_obj, obj_in=update_data)
-
 
     def is_prod_id_exists(self, db: Session, *, prod_id: str) -> Optional[Stock]:
         return db.query(Stock).filter(Stock.prod_id == prod_id).first()

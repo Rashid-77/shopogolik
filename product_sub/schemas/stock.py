@@ -6,8 +6,9 @@ from pydantic import BaseModel
 
 # Shared properties
 class StockBase(BaseModel):
-    prod_id : Optional[int]
-    amount : Optional[float]
+    prod_id: Optional[int]
+    amount: Optional[float]
+
 
 # Properties to receive via API on creation
 class StockCreate(StockBase):
@@ -18,9 +19,10 @@ class StockCreate(StockBase):
 class StockUpdate(StockBase):
     pass
 
+
 class StockInDBBase(StockBase):
     id: int
-    updDate : Optional[datetime] = None
+    updDate: Optional[datetime] = None
 
     # class Config:
     #     orm_mode = True
