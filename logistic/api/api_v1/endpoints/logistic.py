@@ -1,51 +1,57 @@
 from typing import Any, List
 
+import crud
+import models
+import schemas
+from api import deps
 from fastapi import APIRouter, Depends, HTTPException, status
+from logger import logger
 from prometheus_client import Histogram
 from sqlalchemy.orm import Session
 
-import crud, schemas, models
-from api import deps
-from logger import logger
-
-
 router = APIRouter()
 
-REQUEST_TIME_BACKET = Histogram('courier_request_latency_seconds', 'Time spent processing request', ['endpoint'])
+REQUEST_TIME_BACKET = Histogram(
+    "courier_request_latency_seconds", "Time spent processing request", ["endpoint"]
+)
 
 
 @router.post("/{user_id}", response_model=schemas.Courier)
-@REQUEST_TIME_BACKET.labels(endpoint='courier').time()
+@REQUEST_TIME_BACKET.labels(endpoint="courier").time()
 def add_courier(
     user_id: int,
     db: Session = Depends(deps.get_db),
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
-        Add courier to logistic service
+    Add courier to logistic service
     """
     logger.info("add_courier()")
 
     if current_user.is_superuser:
         u = crud.user.get(db, id=user_id)
         if not u:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Not found"
+            )
         if not crud.user.is_active(u):
             raise HTTPException(status_code=422, detail="User is not active.")
         # if u.is_courier:
         #     raise HTTPException(status_code=400, detail="The user is not a courier")
         cu = crud.courier.get_courier_id(db, user_id=user_id)
         if cu:
-            raise HTTPException(status_code=400, detail="Courier is in logistic list already.")
+            raise HTTPException(
+                status_code=400, detail="Courier is in logistic list already."
+            )
         return crud.courier.create(db, user_id=user_id)
     raise HTTPException(status_code=400, detail="You doesn`t have enough privileges")
 
 
 @router.get("/free-couriers", response_model=List[schemas.CourierUnoccupied])
-@REQUEST_TIME_BACKET.labels(endpoint='courier').time()
+@REQUEST_TIME_BACKET.labels(endpoint="courier").time()
 def get_free_couriers(
     db: Session = Depends(deps.get_db),
-    offset:int = 0,
+    offset: int = 0,
     limit: int = 100,
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
@@ -56,13 +62,17 @@ def get_free_couriers(
     if current_user.is_superuser:
         cu = crud.courier.get_free(db, offset, limit)
         if cu is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Not found"
+            )
         return cu
-    raise HTTPException(status_code=400, detail="The user doesn't have enough privilege")
+    raise HTTPException(
+        status_code=400, detail="The user doesn't have enough privilege"
+    )
 
 
 @router.get("/{user_id}", response_model=schemas.Courier)
-@REQUEST_TIME_BACKET.labels(endpoint='courier').time()
+@REQUEST_TIME_BACKET.labels(endpoint="courier").time()
 def get_courier(
     user_id: int,
     db: Session = Depends(deps.get_db),
@@ -75,14 +85,17 @@ def get_courier(
     if current_user.id == user_id or current_user.is_superuser:
         cu = crud.courier.get_courier_id(db, user_id=user_id)
         if cu is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Not found"
+            )
         return cu
-    raise HTTPException(status_code=400, detail="The user doesn't have enough privilege")
-
+    raise HTTPException(
+        status_code=400, detail="The user doesn't have enough privilege"
+    )
 
 
 @router.put("/{user_id}", response_model=schemas.Courier)
-@REQUEST_TIME_BACKET.labels(endpoint='/courier').time()
+@REQUEST_TIME_BACKET.labels(endpoint="/courier").time()
 def update_user(
     *,
     db: Session = Depends(deps.get_db),
@@ -98,22 +111,23 @@ def update_user(
     if current_user.is_superuser:
         u = crud.user.get(db, id=user_id)
         if not u:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Not found"
+            )
         if not crud.user.is_active(u):
             raise HTTPException(status_code=422, detail="User is not active.")
-    
+
     cu = crud.courier.get_courier_id(db, user_id=user_id)
     if cu is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="Courier not in list"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Courier not in list"
         )
     cu = crud.courier.update(db, db_obj=cu, obj_in=user_in)
     return cu
 
 
 @router.delete("/clear-courier-list", response_model=str)
-@REQUEST_TIME_BACKET.labels(endpoint='/courier').time()
+@REQUEST_TIME_BACKET.labels(endpoint="/courier").time()
 def clear_courier_list(
     db: Session = Depends(deps.get_db),
     current_user: models.User = Depends(deps.get_current_active_user),
@@ -123,18 +137,20 @@ def clear_courier_list(
     """
     logger.info("clear_courier_list()")
     if not current_user.is_superuser:
-        raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
-    
+        raise HTTPException(
+            status_code=400, detail="The user doesn't have enough privileges"
+        )
+
     couriers = [c.courier_id for c in db.query(models.Courier).all()]
-    logger.info(f'{couriers=}')
+    logger.info(f"{couriers=}")
     for c in couriers:
         res = crud.courier.remove(db, user_id=c)
-        logger.info(f'  ! removed {res=}')
+        logger.info(f"  ! removed {res=}")
     return "All couriers were removed"
 
 
 @router.delete("/{user_id}", response_model=schemas.Courier)
-@REQUEST_TIME_BACKET.labels(endpoint='/courier').time()
+@REQUEST_TIME_BACKET.labels(endpoint="/courier").time()
 def delete_courier(
     *,
     db: Session = Depends(deps.get_db),
@@ -150,4 +166,6 @@ def delete_courier(
         raise HTTPException(status_code=404, detail="Courier not found")
     if current_user.is_superuser:
         return courier
-    raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
+    raise HTTPException(
+        status_code=400, detail="The user doesn't have enough privileges"
+    )
