@@ -1,17 +1,16 @@
-'''
+"""
     The limited version of user schemas from auth service.
     It does not have hashed password
-'''
+"""
+from typing import Annotated, Optional
 
-from datetime import date
-from typing import Optional
+from pydantic import BaseModel, Field, StringConstraints
 
-from pydantic import BaseModel, Field
 
 # Shared properties
 class UserBase(BaseModel):
     user_id: Optional[int]
-    username: Optional[str] = Field(None, max_legth=256)
+    username: Annotated[str, StringConstraints(max_length=256)]
     first_name: Optional[str] = Field(None)
     last_name: Optional[str] = Field(None)
     email: str

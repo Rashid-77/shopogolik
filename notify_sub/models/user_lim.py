@@ -1,10 +1,9 @@
-'''
+"""
     The limited version of user model from auth service.
     It does not have hashed password
-'''
-from sqlalchemy import Boolean, Column, Integer, String
-
+"""
 from db import Base
+from sqlalchemy import Boolean, Column, Integer, String
 
 
 class User(Base):

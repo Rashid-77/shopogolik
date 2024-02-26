@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -24,7 +25,7 @@ class PubUserEventUpdate(PubUserEventBase):
 
 class PubUserEventInDBBase(PubUserEventBase):
     id: Optional[int] = None
-    created_at : Optional[datetime] = None
+    created_at: Optional[datetime] = None
 
     # class Config:
     #     orm_mode = True

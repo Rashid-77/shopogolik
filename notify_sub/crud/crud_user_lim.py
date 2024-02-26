@@ -1,15 +1,14 @@
-'''
+"""
     The limited version of user crud from auth service.
     It does not save hashed password
-'''
+"""
 from typing import Any, Dict, Optional, Union
-
-from sqlalchemy import or_
-from sqlalchemy.orm import Session
 
 from crud.base import CRUDBase
 from models.user_lim import User
 from schemas.user_lim import UserCreate, UserUpdate
+from sqlalchemy import or_
+from sqlalchemy.orm import Session
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
@@ -18,25 +17,27 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     def get_by_email(self, db: Session, *, email: str) -> Optional[User]:
         return db.query(User).filter(User.email == email).first()
-    
+
     def get_by_user_id(self, db: Session, user_id: int) -> Optional[User]:
         return db.query(User).filter(User.user_id == user_id).first()
-    
+
     def is_user_exists(self, db: Session, username: str, email: str) -> Optional[User]:
-        return db.query(User) \
-                    .filter(or_(User.username == username, User.email == email)) \
-                    .first()
+        return (
+            db.query(User)
+            .filter(or_(User.username == username, User.email == email))
+            .first()
+        )
 
     def create(self, db: Session, *, obj_in: UserCreate) -> User:
         db_obj = User(
             username=obj_in.username,
             first_name=obj_in.first_name,
             last_name=obj_in.last_name,
-            email = obj_in.email,
-            phone = obj_in.phone,
+            email=obj_in.email,
+            phone=obj_in.phone,
             disabled=False,
             is_superuser=obj_in.is_superuser,
-            user_id = obj_in.user_id
+            user_id=obj_in.user_id,
         )
         db.add(db_obj)
         db.commit()
