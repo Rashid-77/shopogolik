@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -25,7 +26,7 @@ class SubUserEventUpdate(SubUserEventBase):
 class SubUserEventInDBBase(SubUserEventBase):
     id: Optional[int] = None
     event_id: Optional[int] = None
-    created_at : Optional[datetime] = None
+    created_at: Optional[datetime] = None
 
     # class Config:
     #     orm_mode = True

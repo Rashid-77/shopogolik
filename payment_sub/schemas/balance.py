@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -28,14 +29,16 @@ class BalanceCreate(BalanceBase):
 class BalanceUpdate(BalanceBase):
     pass
 
+
 class BalanceNow(BaseModel):
     user_id: int
     balance: float
 
+
 class BalanceInDBBase(BalanceBase):
     id: Optional[int] = None
     deposidemp_id: int
-    created_at : Optional[datetime] = None
+    created_at: Optional[datetime] = None
 
     # class Config:
     #     orm_mode = True

@@ -1,12 +1,12 @@
-from datetime import date
-from typing import Optional
+from typing import Annotated, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StringConstraints
+
 
 # Shared properties
 class UserBase(BaseModel):
     user_id: Optional[int]
-    username: Optional[str] = Field(None, max_legth=256)
+    username: Annotated[str, StringConstraints(max_length=256)]
     first_name: Optional[str] = Field(None)
     last_name: Optional[str] = Field(None)
     email: str

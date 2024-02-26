@@ -1,14 +1,12 @@
-from typing import Any, Optional, Dict, Union
-from sqlalchemy.orm import Session
+from typing import Any, Dict, Optional, Union
 
 from crud.base import CRUDBase
 from models.sub_event import SubEvent
 from schemas.sub_event import SubEventCreate, SubEventUpdate
-from logger import logger
+from sqlalchemy.orm import Session
 
 
 class CRUDSubEvent(CRUDBase[SubEvent, SubEventCreate, SubEventUpdate]):
-
     def get(self, db: Session, id: int) -> Optional[SubEvent]:
         return db.query(SubEvent).filter(SubEvent.id == id).first()
 
@@ -17,8 +15,8 @@ class CRUDSubEvent(CRUDBase[SubEvent, SubEventCreate, SubEventUpdate]):
 
     def create(self, db: Session, obj_in: SubEventCreate) -> SubEvent:
         db_obj = SubEvent(
-            event_id = obj_in.event_id,
-            order_id = obj_in.order_id,
+            event_id=obj_in.event_id,
+            order_id=obj_in.order_id,
         )
         db.add(db_obj)
         db.commit()
@@ -26,7 +24,11 @@ class CRUDSubEvent(CRUDBase[SubEvent, SubEventCreate, SubEventUpdate]):
         return db_obj
 
     def update(
-        self, db: Session, *, db_obj: SubEvent, obj_in: Union[SubEventUpdate, Dict[str, Any]]
+        self,
+        db: Session,
+        *,
+        db_obj: SubEvent,
+        obj_in: Union[SubEventUpdate, Dict[str, Any]],
     ) -> SubEvent:
         if isinstance(obj_in, dict):
             update_data = obj_in

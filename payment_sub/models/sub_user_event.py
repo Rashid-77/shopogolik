@@ -1,7 +1,6 @@
+from db import Base
 from sqlalchemy import Column, DateTime, Integer, String
 from sqlalchemy.sql import func
-
-from db import Base
 
 
 class SubUserEvent(Base):
@@ -10,9 +9,9 @@ class SubUserEvent(Base):
     user_id = Column(Integer)
     state = Column(String, default="")
     created_at = Column(
-        DateTime(timezone=True), 
-        server_default=func.now(), 
-        nullable=False, 
-        index=True, 
-        default=None
-        )
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+        index=True,
+        default=None,
+    )
