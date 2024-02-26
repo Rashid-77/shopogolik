@@ -15,11 +15,12 @@ def get_logger(module_name, level=logging.DEBUG):
     logger.setLevel(level)
     return logger
 
+
 @lru_cache
 def get_console_logger(module_name, level=logging.DEBUG):
     logging.basicConfig(
-            level=level,
-            format="[%(asctime)s] %(levelname).1s %(message)s",
-            datefmt="%Y.%m.%d %H:%M:%S",
-        )
+        level=level,
+        format="[%(asctime)s] %(levelname).1s %(message)s",
+        datefmt="%Y.%m.%d %H:%M:%S",
+    )
     return logging.getLogger(module_name)

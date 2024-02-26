@@ -1,26 +1,25 @@
-from decimal import *
 import json
 
-from confluent_kafka import Producer, Consumer, KafkaException, KafkaError
-from crud.crud_pub_event import pub_event
-from crud.crud_sub_event import sub_prod_event, sub_paym_event, sub_logis_event
-from schemas.sub_event import SubEventCreate
-from schemas.pub_event import PubEventCreate
+from confluent_kafka import Consumer, KafkaError, KafkaException, Producer
 from crud import order
-from models import Order
-from utils import get_settings
-from utils.log import get_console_logger
+from crud.crud_pub_event import pub_event
+from crud.crud_sub_event import sub_logis_event, sub_paym_event, sub_prod_event
 from db.session import SessionLocal
 from events_sub.utils import send_message
+from models import Order
+from schemas.pub_event import PubEventCreate
+from schemas.sub_event import SubEventCreate
+from utils import get_settings
+from utils.log import get_console_logger
 
-CONSUMER_GROUP = 'order_group'
+CONSUMER_GROUP = "order_group"
 POLL_WAIT = 0.2
 
 logger = get_console_logger(__name__)
 logger.info("Order_sub started")
 
 kafka_url = get_settings().broker_url
-p = Producer({'bootstrap.servers': kafka_url})
+p = Producer({"bootstrap.servers": kafka_url})
 db = SessionLocal()
 
 
@@ -28,13 +27,13 @@ def dispatch_msgs(msg):
     def get_fail_reason(o: Order) -> str:
         fail = []
         if o.goods_fail:
-            fail.append(' out of stock')
+            fail.append(" out of stock")
         if o.money_fail:
-            fail.append(' insufficient balance')
+            fail.append(" insufficient balance")
         if o.courier_fail:
-            fail.append(' no couriers available')
-        return ','.join(fail)
-    
+            fail.append(" no couriers available")
+        return ",".join(fail)
+
     val = json.loads(msg.value())
     order_uuid = val.get("order_uuid")
     event_id = val.get("id")
@@ -45,11 +44,9 @@ def dispatch_msgs(msg):
         if sub_ev is not None:
             logger.warn(f"This is duplicate prod msg ev_id={event_id}. Ignored")
             return
-        
-        sub_ev = sub_prod_event.create(db, obj_in=SubEventCreate(
-                event_id=event_id,
-                order_id=order_uuid
-            )
+
+        sub_ev = sub_prod_event.create(
+            db, obj_in=SubEventCreate(event_id=event_id, order_id=order_uuid)
         )
         at_least_one_reserved = False
         for prod in val.get("reserved", []):
@@ -58,15 +55,15 @@ def dispatch_msgs(msg):
                 break
         o: Order = order.get(db, order_uuid)
         if at_least_one_reserved:
-            o =order.update(db, db_obj=o, obj_in={"goods_reserved": True})
+            o = order.update(db, db_obj=o, obj_in={"goods_reserved": True})
             logger.info(f' {val.get("state")}')
         elif val.get("canceled"):
-            o =order.update(db, db_obj=o, obj_in={"goods_reserved": False})
+            o = order.update(db, db_obj=o, obj_in={"goods_reserved": False})
             logger.info(f' {val.get("state")}')
         else:
             cancel_order = True
-            o =order.update(db, db_obj=o, obj_in={"goods_fail": True})
-            logger.info(f'All goods in the order are out of stock')
+            o = order.update(db, db_obj=o, obj_in={"goods_fail": True})
+            logger.info("All goods in the order are out of stock")
 
     elif val.get("name") == "payment":
         sub_ev = sub_paym_event.get_by_event_id(db, event_id)
@@ -74,112 +71,122 @@ def dispatch_msgs(msg):
             logger.warn(f"This is duplicate paym msg ev_id={event_id}. Ignored")
             return
 
-        sub_ev = sub_paym_event.create(db, obj_in=SubEventCreate(
-                event_id=event_id, 
-                order_id=order_uuid
-            )
+        sub_ev = sub_paym_event.create(
+            db, obj_in=SubEventCreate(event_id=event_id, order_id=order_uuid)
         )
         o: Order = order.get(db, order_uuid)
         if val.get("reserved"):
-            o =order.update(db, db_obj=o, obj_in={"money_reserved": True})
-            logger.info(f'Money reserved')
+            o = order.update(db, db_obj=o, obj_in={"money_reserved": True})
+            logger.info("Money reserved")
         elif val.get("canceled"):
-            o =order.update(db, db_obj=o, obj_in={"money_reserved": False})
+            o = order.update(db, db_obj=o, obj_in={"money_reserved": False})
             logger.info(f' {val.get("state")}')
         else:
             cancel_order = True
-            o =order.update(db, db_obj=o, obj_in={"money_fail": True})
-            logger.info(f'insufficient balance')
+            o = order.update(db, db_obj=o, obj_in={"money_fail": True})
+            logger.info("insufficient balance")
 
     elif val.get("name") == "logistic":
         sub_ev = sub_logis_event.get_by_event_id(db, event_id)
         if sub_ev is not None:
             logger.warn(f"This is duplicate logistic msg ev_id={event_id}. Ignored")
             return
-        sub_ev = sub_logis_event.create(db, obj_in=SubEventCreate(
-                event_id=event_id,
-                order_id=order_uuid
-            )
+        sub_ev = sub_logis_event.create(
+            db, obj_in=SubEventCreate(event_id=event_id, order_id=order_uuid)
         )
         o: Order = order.get(db, order_uuid)
         if val.get("reserved"):
-            o =order.update(db, db_obj=o, obj_in={"courier_reserved": True})
-            logger.info(f'Courier reserved')
+            o = order.update(db, db_obj=o, obj_in={"courier_reserved": True})
+            logger.info("Courier reserved")
         elif val.get("canceled"):
-            o =order.update(db, db_obj=o, obj_in={"courier_reserved": False})
-            logger.info(f'Courier is canceled')
+            o = order.update(db, db_obj=o, obj_in={"courier_reserved": False})
+            logger.info("Courier is canceled")
         else:
             cancel_order = True
             o = order.update(db, db_obj=o, obj_in={"courier_fail": True})
-            logger.info(f'There is no available courier')
+            logger.info("There is no available courier")
 
     if cancel_order:
-        pub_ev  = pub_event.create(db, obj_in=PubEventCreate(order_id=order_uuid))
+        pub_ev = pub_event.create(db, obj_in=PubEventCreate(order_id=order_uuid))
         cancel_order = {
-            "name" : "order",
+            "name": "order",
             "user_id": val.get("user_id"),
             "order_uuid": order_uuid,
             "state": "canceling",
             "reason": get_fail_reason(o),
-            "id": pub_ev.id
+            "id": pub_ev.id,
         }
-        send_message(p, 'order', cancel_order)
-    elif o.goods_reserved and o.money_reserved and o.courier_reserved \
-        and not o.reserv_user_canceled:
-        pub_ev  = pub_event.create(db, obj_in=PubEventCreate(order_id=order_uuid))
+        send_message(p, "order", cancel_order)
+    elif (
+        o.goods_reserved
+        and o.money_reserved
+        and o.courier_reserved
+        and not o.reserv_user_canceled
+    ):
+        pub_ev = pub_event.create(db, obj_in=PubEventCreate(order_id=order_uuid))
         rdy_to_ship = {
-            "name" : "order",
+            "name": "order",
             "user_id": val.get("user_id"),
             "order_uuid": order_uuid,
             "state": "rdy_to_ship",
-            "id": pub_ev.id
+            "id": pub_ev.id,
         }
-        send_message(p, 'order', rdy_to_ship)
+        send_message(p, "order", rdy_to_ship)
 
 
 def process_pool(msg):
     if msg.error():
         if msg.error().code() == KafkaError._PARTITION_EOF:
             # End of partition event
-            logger.error('%% %s [%d] reached end at offset %d\n' %
-                             (msg.topic(), msg.partition(), msg.offset()))
+            logger.error(
+                "%% %s [%d] reached end at offset %d\n"
+                % (msg.topic(), msg.partition(), msg.offset())
+            )
         elif msg.error():
             raise KafkaException(msg.error())
     else:
-        logger.info(f'')    # gap in log for readability
-        logger.info(f'<--- Received: t={msg.topic()}, p={msg.partition()}, o={msg.offset()}')
-        logger.info(f'     msg:{json.loads(msg.value())}')
+        logger.info("")  # gap in log for readability
+        logger.info(
+            f"<--- Received: t={msg.topic()}, p={msg.partition()}, o={msg.offset()}"
+        )
+        logger.info(f"     msg:{json.loads(msg.value())}")
         dispatch_msgs(msg)
 
 
 def main_consume_loop():
     logger.info("basic_consume_loop()")
     try:
-        c_prod = Consumer({
-            'bootstrap.servers': kafka_url,
-            'group.id': CONSUMER_GROUP,
-            'auto.offset.reset': 'earliest'
-        })
-        c_paym = Consumer({
-            'bootstrap.servers': kafka_url,
-            'group.id': CONSUMER_GROUP,
-            'auto.offset.reset': 'earliest'
-        })
-        c_logis = Consumer({
-            'bootstrap.servers': kafka_url,
-            'group.id': CONSUMER_GROUP,
-            'auto.offset.reset': 'earliest'
-        })
+        c_prod = Consumer(
+            {
+                "bootstrap.servers": kafka_url,
+                "group.id": CONSUMER_GROUP,
+                "auto.offset.reset": "earliest",
+            }
+        )
+        c_paym = Consumer(
+            {
+                "bootstrap.servers": kafka_url,
+                "group.id": CONSUMER_GROUP,
+                "auto.offset.reset": "earliest",
+            }
+        )
+        c_logis = Consumer(
+            {
+                "bootstrap.servers": kafka_url,
+                "group.id": CONSUMER_GROUP,
+                "auto.offset.reset": "earliest",
+            }
+        )
 
-        c_prod.subscribe(['product'])
-        c_paym.subscribe(['payment'])
-        c_logis.subscribe(['logistic'])
+        c_prod.subscribe(["product"])
+        c_paym.subscribe(["payment"])
+        c_logis.subscribe(["logistic"])
         while True:
             # TODO change to poll consume to the batch consume in the future
             msg = c_prod.poll(POLL_WAIT)
-            if msg is not None: 
+            if msg is not None:
                 process_pool(msg)
-            
+
             msg = c_paym.poll(POLL_WAIT)
             if msg is not None:
                 process_pool(msg)
@@ -189,6 +196,6 @@ def main_consume_loop():
                 process_pool(msg)
     finally:
         # Close down consumer to commit final offsets.
-        logger.error('Consumers closed down')
+        logger.error("Consumers closed down")
         c_prod.close()
         c_paym.close()

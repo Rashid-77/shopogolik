@@ -1,7 +1,5 @@
-from uuid import UUID
-from sqlalchemy import Boolean, Column, Date, Integer, String, Text, Float, Uuid
-
 from db import Base
+from sqlalchemy import Boolean, Column, Integer, Uuid
 
 
 class Order(Base):

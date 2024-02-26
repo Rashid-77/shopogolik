@@ -1,22 +1,21 @@
-from typing import Any, Optional, Dict, Union
+from typing import Any, Dict, Optional, Union
 from uuid import UUID
-from sqlalchemy import or_, and_
-from sqlalchemy.orm import Session
 
 from crud.base import CRUDBase
 from models.order import Order
 from schemas.order import OrderCreate, OrderUpdate
+from sqlalchemy import or_
+from sqlalchemy.orm import Session
 
 
 class CRUDOrder(CRUDBase[Order, OrderCreate, OrderUpdate]):
-
     def get(self, db: Session, uuid: UUID) -> Optional[Order]:
         return db.query(self.model).filter(self.model.uuid == uuid).first()
 
     def create(self, db: Session, *, obj_in: OrderCreate, user_id) -> Order:
         db_obj = Order(
-            uuid = obj_in.uuid,
-            userId = user_id,
+            uuid=obj_in.uuid,
+            userId=user_id,
         )
         db.add(db_obj)
         db.commit()
@@ -36,15 +35,19 @@ class CRUDOrder(CRUDBase[Order, OrderCreate, OrderUpdate]):
         return db.query(Order).filter(Order.uuid == uuid).first()
 
     def is_canceling(self, db: Session, order_uuid) -> bool:
-        res = db.query(Order).filter(Order.uuid == order_uuid) \
-            .filter(or_(
-                Order.goods_fail == True,
-                Order.money_fail == True,
-                Order.courier_fail == True,
-                Order.reserv_user_canceled == True,
+        res = (
+            db.query(Order)
+            .filter(Order.uuid == order_uuid)
+            .filter(
+                or_(
+                    Order.goods_fail is True,
+                    Order.money_fail is True,
+                    Order.courier_fail is True,
+                    Order.reserv_user_canceled is True,
                 )
-            ) \
+            )
             .first()
+        )
         return True if res else False
 
 
