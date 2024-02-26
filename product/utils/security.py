@@ -1,4 +1,4 @@
-import secrets
+import secrets  # noqa
 from datetime import datetime, timedelta
 from typing import Any, Union
 
