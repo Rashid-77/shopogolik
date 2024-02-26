@@ -1,6 +1,5 @@
-from sqlalchemy import Boolean, Column, Date, Integer, String, Float, DECIMAL
-
 from db import Base
+from sqlalchemy import DECIMAL, Boolean, Column, Date, Float, Integer, String
 
 
 class Product(Base):

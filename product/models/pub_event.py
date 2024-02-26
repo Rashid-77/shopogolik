@@ -1,7 +1,6 @@
-from sqlalchemy import Column, DateTime, Integer, Boolean, String
-from sqlalchemy.sql import func
-
 from db import Base
+from sqlalchemy import Boolean, Column, DateTime, Integer, String
+from sqlalchemy.sql import func
 
 
 class PubEvent(Base):
@@ -10,9 +9,9 @@ class PubEvent(Base):
     delivered = Column(Boolean, default=False)
     deliv_fail = Column(Boolean, default=False)
     created_at = Column(
-        DateTime(timezone=True), 
-        server_default=func.now(), 
-        nullable=False, 
-        index=True, 
-        default=None
-        )
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+        index=True,
+        default=None,
+    )

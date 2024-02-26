@@ -1,22 +1,22 @@
 from typing import Any
 
+import crud
+import schemas
+from api import deps
 from fastapi import APIRouter, Depends, HTTPException, status
+from logger import logger
 from prometheus_client import Histogram
 from sqlalchemy.orm import Session
 
-import crud, schemas
-from api import deps
-from logger import logger
-
-
 router = APIRouter()
 
-REQUEST_TIME_BACKET = Histogram('stock_info_request_latency_seconds', 
-                                'Time spent processing request', ['endpoint'])
+REQUEST_TIME_BACKET = Histogram(
+    "stock_info_request_latency_seconds", "Time spent processing request", ["endpoint"]
+)
 
 
 @router.get("/{prod_id}", response_model=schemas.Stock)
-@REQUEST_TIME_BACKET.labels(endpoint='/stock').time()
+@REQUEST_TIME_BACKET.labels(endpoint="/stock").time()
 def read_prod_info_in_stock(
     prod_id: int,
     db: Session = Depends(deps.get_db),

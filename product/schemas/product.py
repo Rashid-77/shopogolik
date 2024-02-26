@@ -1,28 +1,29 @@
 from datetime import datetime
-from decimal import *
+from decimal import Decimal
 from typing import Optional
 
 from pydantic import BaseModel
 
+
 # Shared properties
 class ProductBase(BaseModel):
-    sku : Optional[str] = None
-    name : str
-    price : Decimal
-    weight_kg : Optional[float] = None
-    width_m : Optional[float] = None
-    length_m : Optional[float] = None
-    height_m : Optional[float] = None
-    volume_m3 : Optional[float] = None
-    carDescr : Optional[str] = None
-    shortDescr : Optional[str] = None
-    longDescr : Optional[str] = None
-    thumb : Optional[str] = None
-    image : Optional[str] = None
-    live : Optional[bool] = False
-    virtual : Optional[bool] = False
-    unlimited : Optional[bool] = False
-    location : Optional[str] = None
+    sku: Optional[str] = None
+    name: str
+    price: Decimal
+    weight_kg: Optional[float] = None
+    width_m: Optional[float] = None
+    length_m: Optional[float] = None
+    height_m: Optional[float] = None
+    volume_m3: Optional[float] = None
+    carDescr: Optional[str] = None
+    shortDescr: Optional[str] = None
+    longDescr: Optional[str] = None
+    thumb: Optional[str] = None
+    image: Optional[str] = None
+    live: Optional[bool] = False
+    virtual: Optional[bool] = False
+    unlimited: Optional[bool] = False
+    location: Optional[str] = None
 
 
 # Properties to receive via API on creation
@@ -41,7 +42,7 @@ class ProductUpdate(ProductBase):
 
 class ProductInDBBase(ProductBase):
     id: int
-    updDate : Optional[datetime] = None
+    updDate: Optional[datetime] = None
 
     # class Config:
     #     orm_mode = True

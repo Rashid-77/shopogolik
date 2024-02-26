@@ -1,22 +1,23 @@
 from typing import Any
-from uuid import UUID
 
+import crud
+import models
+import schemas
+from api import deps
 from fastapi import APIRouter, Depends, HTTPException, status
+from logger import logger
 from prometheus_client import Histogram
 from sqlalchemy.orm import Session
 
-import crud, schemas, models
-from api import deps
-from logger import logger
-
-
 router = APIRouter()
 
-REQUEST_TIME_BACKET = Histogram('product_request_latency_seconds', 'Time spent processing request', ['endpoint'])
+REQUEST_TIME_BACKET = Histogram(
+    "product_request_latency_seconds", "Time spent processing request", ["endpoint"]
+)
 
 
 @router.post("/add", response_model=schemas.Product)
-@REQUEST_TIME_BACKET.labels(endpoint='/product').time()
+@REQUEST_TIME_BACKET.labels(endpoint="/product").time()
 def add_product(
     product_in: schemas.ProductCreate,
     db: Session = Depends(deps.get_db),
@@ -38,11 +39,13 @@ def add_product(
     logger.info(f"{current_user.is_superuser=}")
     if current_user.is_superuser:
         return crud.product.create(db, obj_in=product_in)
-    raise HTTPException(status_code=400, detail="The user doesn't have enough privilege")
+    raise HTTPException(
+        status_code=400, detail="The user doesn't have enough privilege"
+    )
 
 
 @router.get("/{product_id}", response_model=schemas.Product)
-@REQUEST_TIME_BACKET.labels(endpoint='/product').time()
+@REQUEST_TIME_BACKET.labels(endpoint="/product").time()
 def read_product_by_id(
     product_id: int,
     db: Session = Depends(deps.get_db),
@@ -58,7 +61,7 @@ def read_product_by_id(
 
 
 @router.put("/{product_id}", response_model=schemas.Product)
-@REQUEST_TIME_BACKET.labels(endpoint='/product').time()
+@REQUEST_TIME_BACKET.labels(endpoint="/product").time()
 def update_product(
     *,
     db: Session = Depends(deps.get_db),
@@ -75,11 +78,13 @@ def update_product(
         raise HTTPException(status_code=404, detail="Product not found")
     if current_user.is_superuser:
         return crud.product.update(db, db_obj=product, obj_in=product_in)
-    raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
+    raise HTTPException(
+        status_code=400, detail="The user doesn't have enough privileges"
+    )
 
 
 @router.delete("/{product_id}", response_model=schemas.Product)
-@REQUEST_TIME_BACKET.labels(endpoint='/product').time()
+@REQUEST_TIME_BACKET.labels(endpoint="/product").time()
 def delete_product(
     *,
     db: Session = Depends(deps.get_db),
@@ -95,4 +100,6 @@ def delete_product(
         raise HTTPException(status_code=404, detail="Product not found")
     if current_user.is_superuser:
         return product
-    raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
+    raise HTTPException(
+        status_code=400, detail="The user doesn't have enough privileges"
+    )

@@ -7,13 +7,12 @@ Create Date: 2024-01-28 12:05:00.620232
 """
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = 'ce4aa0abe98c'
-down_revision: Union[str, None] = 'd4ecaa979d10'
+revision: str = "ce4aa0abe98c"
+down_revision: Union[str, None] = "d4ecaa979d10"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -25,10 +24,12 @@ def upgrade() -> None:
         sa.Column("order_id", sa.Integer(), nullable=False),
         sa.Column("prod_id", sa.Integer(), nullable=False),
         sa.Column("amount", sa.Integer(), nullable=False),
-        sa.Column("updDate", 
-                  sa.DateTime(timezone=True), 
-                  server_default=sa.text("now()"), 
-                  nullable=True),
+        sa.Column(
+            "updDate",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=True,
+        ),
         sa.Column("state", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )

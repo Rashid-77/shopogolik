@@ -1,13 +1,12 @@
-from typing import Any, Optional, Dict, Union
-from sqlalchemy.orm import Session
+from typing import Any, Dict, Optional, Union
 
 from crud.base import CRUDBase
 from models.stock import Stock
 from schemas.stock import StockCreate, StockUpdate
+from sqlalchemy.orm import Session
 
 
 class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
-
     def get(self, db: Session, id: int) -> Optional[Stock]:
         return db.query(Stock).filter(Stock.id == id).first()
 
@@ -16,8 +15,8 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
 
     def create(self, db: Session, *, obj_in: StockCreate) -> Stock:
         db_obj = Stock(
-            prod_id = obj_in.prod_id,
-            amount = obj_in.amount,
+            prod_id=obj_in.prod_id,
+            amount=obj_in.amount,
         )
         db.add(db_obj)
         db.commit()
