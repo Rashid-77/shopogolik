@@ -1,4 +1,4 @@
-from .token import Token
-from .order import Order, OrderCreate, OrderInDBBase, OrderUpdate, OrderFind
+from .order import Order, OrderCreate, OrderFind, OrderInDBBase, OrderUpdate
 from .order_info import OrderInfo, OrderInfoCreate, OrderInfoUpdate
+from .token import Token
 from .user import UserCreate

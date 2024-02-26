@@ -1,19 +1,14 @@
 from typing import Annotated, Generator
 
-from fastapi import Depends, HTTPException, status, Header
-from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError
-from pydantic import ValidationError
-from sqlalchemy.orm import Session
-
-# from backend import crud, get_logger, models
-import crud, models
+import crud
+import models
 from db.session import SessionLocal
-from schemas.token import TokenData
-
+from fastapi import Depends, Header, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from logger import logger
+from sqlalchemy.orm import Session
 from utils.config import get_settings
 from utils.security import decode_access_token  # noqa
-from logger import logger
 
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl=f"{get_settings().API_V1_STR}/login")
 
@@ -34,24 +29,29 @@ async def get_current_user(
     x_last_name: Annotated[str | None, Header()] = "",
     x_email: Annotated[str | None, Header()] = None,
     x_phone: Annotated[str | None, Header()] = "",
-    ) -> models.User:
+) -> models.User:
     logger.info("get_current_user()")
-    if ((x_userid is None or x_userid=="")
-        or (x_user is None or x_user=="")
-        or (x_email is None or x_email=="")):
-        logger.info(f" {x_userid=}, {x_user=}, {x_first_name=}, {x_last_name=}, {x_email=}, {x_phone=} ")
+    if (
+        (x_userid is None or x_userid == "")
+        or (x_user is None or x_user == "")
+        or (x_email is None or x_email == "")
+    ):
+        logger.info(
+            f" {x_userid=}, {x_user=}, {x_first_name=},"
+            f" {x_last_name=}, {x_email=}, {x_phone=} "
+        )
         raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     user = models.User(
-        id = int(x_userid),
+        id=int(x_userid),
         username=x_user,
         first_name=x_first_name,
         last_name=x_last_name,
-        email = x_email,
-        phone = x_phone,
+        email=x_email,
+        phone=x_phone,
         disabled=False,
     )
     logger.info(f" {user=}")

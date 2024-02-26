@@ -1,7 +1,6 @@
+from db import Base
 from sqlalchemy import Column, DateTime, Integer, String
 from sqlalchemy.sql import func
-
-from db import Base
 
 
 class SubProdEvent(Base):
@@ -9,12 +8,12 @@ class SubProdEvent(Base):
     event_id = Column(Integer)
     order_id = Column(String)
     created_at = Column(
-        DateTime(timezone=True), 
-        server_default=func.now(), 
-        nullable=False, 
-        index=True, 
-        default=None
-        )
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+        index=True,
+        default=None,
+    )
 
 
 class SubPaymEvent(Base):
@@ -22,9 +21,9 @@ class SubPaymEvent(Base):
     event_id = Column(Integer)
     order_id = Column(String)
     created_at = Column(
-        DateTime(timezone=True), 
-        server_default=func.now(), 
-        nullable=False, 
-        index=True, 
-        default=None
-        )
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+        index=True,
+        default=None,
+    )

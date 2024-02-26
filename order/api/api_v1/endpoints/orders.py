@@ -1,19 +1,21 @@
 from typing import Any
 from uuid import UUID
 
+import crud
+import models
+import schemas
+from api import deps
+from events_pub.order_pub import publish_order_created
 from fastapi import APIRouter, Depends, HTTPException, status
+from logger import logger
 from prometheus_client import Histogram
 from sqlalchemy.orm import Session
 
-import crud, schemas, models
-from api import deps
-from events_pub.order_pub import publish_order_created
-from logger import logger
-
-
 router = APIRouter()
 
-REQUEST_TIME_BACKET = Histogram('request_latency_seconds', 'Time spent processing request', ['endpoint'])
+REQUEST_TIME_BACKET = Histogram(
+    "request_latency_seconds", "Time spent processing request", ["endpoint"]
+)
 
 
 @router.post("/create", response_model=schemas.Order)
@@ -41,7 +43,7 @@ async def create_order(
 
 @router.get("/{order_uuid}", response_model=schemas.Order)
 # TODO change sync prometeus client to async
-#@REQUEST_TIME_BACKET.labels(endpoint='/order').time()
+# @REQUEST_TIME_BACKET.labels(endpoint='/order').time()
 async def read_order_by_id(
     order_uuid: UUID,
     current_user: models.User = Depends(deps.get_current_active_user),
@@ -56,11 +58,13 @@ async def read_order_by_id(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
     if order.userId == current_user.id or current_user.is_superuser:
         return order
-    raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
+    raise HTTPException(
+        status_code=400, detail="The user doesn't have enough privileges"
+    )
 
 
 @router.put("/{order_uuid}", response_model=schemas.Order)
-@REQUEST_TIME_BACKET.labels(endpoint='/order').time()
+@REQUEST_TIME_BACKET.labels(endpoint="/order").time()
 async def update_order(
     *,
     db: Session = Depends(deps.get_db),
@@ -78,11 +82,13 @@ async def update_order(
     if order.userId == current_user.id or current_user.is_superuser:
         order = crud.order.update(db, db_obj=order, obj_in=order_in)
         return order
-    raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
+    raise HTTPException(
+        status_code=400, detail="The user doesn't have enough privileges"
+    )
 
 
 @router.delete("/{order_uuid}", response_model=schemas.Order)
-@REQUEST_TIME_BACKET.labels(endpoint='/order').time()
+@REQUEST_TIME_BACKET.labels(endpoint="/order").time()
 async def delete_user(
     *,
     db: Session = Depends(deps.get_db),

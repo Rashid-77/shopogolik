@@ -33,6 +33,7 @@ class OrderInDBBase(OrderBase):
     # class Config:
     #     orm_mode = True
 
+
 class OrderFind(OrderInDBBase):
     uuid: UUID
 
